@@ -5,7 +5,7 @@ public class Board {
 	public static final int minCarSize = 2;
 	public static final int maxCarSize = 3;
 	
-	public Board() {
-		
+	public Board() {	
+	
 	}
 }

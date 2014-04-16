@@ -1,8 +1,9 @@
 package board;
 
 public class Line {
-	private boolean[][] reachableLines;
+	private boolean[][] reachableLines; // all lines reachable from line
 	private boolean[] line;
+	private boolean[] occupationLine; // all tiles occupied on line
 	
 	public Line(boolean[] line) {
 		this.line = line;
