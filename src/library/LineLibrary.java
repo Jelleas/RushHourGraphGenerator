@@ -1,34 +1,58 @@
 package library;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import board.Line;
 import board.Board;
 
 public class LineLibrary {
 	private ArrayList<Line> lines;
+	private HashMap<String, Line> linesMap;
 	
 	protected LineLibrary() {
-		lines = generateAllLines();
+		initLines();
+	}
+	
+	protected void init() {
+		for (Line line : lines)
+			line.init();
 	}
 	
 	public ArrayList<Line> getLines() {
 		return lines;
 	}
 	
-	private ArrayList<Line> generateAllLines() {
-		ArrayList<Line> allLines = new ArrayList<Line>();
+	public Line getLine(boolean[] boolLine) {
+		String repr = "";
+		for (boolean elem : boolLine)
+			repr += elem;
 		
-		for (boolean[] intLine : generateAllIntLines())
-			allLines.add(new Line(intLine));
-		
-		return allLines;
+		return linesMap.get(repr);
 	}
 	
-	private ArrayList<boolean[]> generateAllIntLines() {
-		return generateAllIntLinesRec(new ArrayList<boolean[]>(), new boolean[Board.lineSize], 0);
+	private void initLines() {
+		lines = new ArrayList<Line>();
+		linesMap = new HashMap<String, Line>();
+		
+		for (boolean[] boolLine : generateAllBoolLines()) {
+			Line line = new Line(boolLine);
+			
+			String repr = "";
+			for (boolean elem : boolLine)
+				repr += elem;
+			
+			linesMap.put(repr, line);
+			lines.add(line);
+		}
 	}
 	
-	private ArrayList<boolean[]> generateAllIntLinesRec(ArrayList<boolean[]> intLines, boolean[] line, int depth) {
+	private ArrayList<boolean[]> generateAllBoolLines() {
+		return generateAllBoolLinesRec(new ArrayList<boolean[]>(), new boolean[Board.lineSize], 0);
+	}
+	
+	private ArrayList<boolean[]> generateAllBoolLinesRec(ArrayList<boolean[]> intLines, boolean[] line, int depth) {
 		if (depth == line.length) { // basecase		
 			if (line[line.length - 1]) // last elem must be false
 				return intLines;
@@ -52,10 +76,10 @@ public class LineLibrary {
 		}
 		
 		line[depth] = true;
-		generateAllIntLinesRec(intLines, line.clone(), depth + 1);
+		generateAllBoolLinesRec(intLines, line.clone(), depth + 1);
 		
 		line[depth] = false;
-		generateAllIntLinesRec(intLines, line.clone(), depth + 1);
+		generateAllBoolLinesRec(intLines, line.clone(), depth + 1);
 		
 		return intLines;
 	}
