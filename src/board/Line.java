@@ -58,11 +58,12 @@ public class Line {
 					//System.out.println(this + " " + Library.lineLibrary.getLine(tempLine) + " LEFT " +
 					//		carLocLength[0] + "," + carLocLength[1] + " " + i + "," + carLocLength[1]);
 					reachables.add(Library.lineLibrary.getLine(tempLine));	
-				} else
-					break;
+				} else // if car is blocked, stop moving in this direction
+					break; 
 			}
 			
-			reachableLines.add(reachables);
+			if (!reachables.isEmpty())
+				reachableLines.add(reachables);
 			reachables = new ArrayList<Line>();
 			
 			for (int i = carEndPos; i < line.length; i++) {
@@ -77,11 +78,12 @@ public class Line {
 					//System.out.println(this + " " + Library.lineLibrary.getLine(tempLine) + " RIGHT " +
 					//carLocLength[0] + "," + carLocLength[1] + " " + i + "," + carLocLength[1]);
 					reachables.add(Library.lineLibrary.getLine(tempLine));	
-				} else
+				} else // if car is blocked, stop moving in this direction
 					break;
 			}
 			
-			reachableLines.add(reachables);
+			if (!reachables.isEmpty())
+				reachableLines.add(reachables);
 		}
 	}
 
