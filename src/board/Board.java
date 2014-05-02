@@ -7,10 +7,10 @@ public class Board {
 	public static final int minCarSize = 2;
 	public static final int maxCarSize = 3;
 	
-	private boolean[][] columns, rows;
+	private Line[] columns, rows;
 	private ArrayList<Board> reachableBoards;
 	
-	public Board(boolean[][] columns, boolean[][] rows) { // TODO finish!
+	public Board(Line[] columns, Line[] rows) { // TODO finish!
 		this.columns = columns;
 		this.rows = rows;
 		this.reachableBoards = new ArrayList<Board>();
@@ -39,5 +39,17 @@ public class Board {
 			if (other.columns[i] != this.columns[i] || other.rows[i] != this.rows[i])
 				return false;
 		return true;
+	}
+	
+	public String getBoardFilling() {
+		String filling = "";
+		
+		for (Line line : this.columns)
+			filling += line.getLineFilling();
+		
+		for (Line line : this.rows)
+			filling += line.getLineFilling();
+		
+		return filling;
 	}
 }

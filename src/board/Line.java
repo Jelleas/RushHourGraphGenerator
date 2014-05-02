@@ -9,6 +9,7 @@ public class Line {
 	private boolean[] line;
 	private boolean[] occupationLine; // all tiles occupied on line
 	private int numberOfCars, numberOfTrucks;
+	private String filling; // TODO
 	
 	public Line(boolean[] line) {
 		this.line = line;
@@ -17,6 +18,7 @@ public class Line {
 	public void init() {
 		this.numberOfCars = 0;
 		this.numberOfTrucks = 0;
+		this.filling = "";
 		this.occupationLine = new boolean[line.length];
 		ArrayList<int[]> carLocLengths = new ArrayList<int[]>();
 		
@@ -28,10 +30,13 @@ public class Line {
 			}
 			
 			if (!line[i] || (i == line.length && count > 0)) {
-				if (count == 2)
+				if (count == 2) {
 					numberOfCars++;
-				else if (count == 3)
+					filling += "2";
+				} else if (count == 3) {
 					numberOfTrucks++;
+					filling += "3";
+				}
 				
 				if (count > 0)
 					carLocLengths.add(new int[] {i - count + 1, count});
@@ -39,6 +44,9 @@ public class Line {
 				count = 0;
 			}
 		}
+		
+		filling += numberOfCars;
+		filling += numberOfTrucks;
 		
 		reachableLines = new ArrayList<ArrayList<Line>>(); // init reachableLines
 		
@@ -110,5 +118,9 @@ public class Line {
 		for (boolean elem : line)
 			repr += (elem ? 1 : 0) + " ";
 		return repr;
+	}
+	
+	public String getLineFilling() {
+		return filling;
 	}
 }

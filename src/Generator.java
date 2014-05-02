@@ -3,7 +3,7 @@ import board.Line;
 
 public class Generator {
 	public static void main(String[] args) {
-		Library.init(); // TODO, prettier?
+		Library.init();
 		
 		for (Line line : Library.lineLibrary.getLines())
 			line.print();
