@@ -6,8 +6,8 @@ import library.Library;
 
 public class Line {
 	private ArrayList<ArrayList<Line>> reachableLines; // all lines reachable from line to the left
-	private boolean[] line;
-	private boolean[] occupationLine; // all tiles occupied on line
+	public boolean[] line;
+	public boolean[] occupationLine; // all tiles occupied on line
 	private int numberOfCars, numberOfTrucks;
 	private String filling; // TODO
 	

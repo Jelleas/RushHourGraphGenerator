@@ -34,20 +34,102 @@ public class ClusterLibrary {
 	}
 	
 	public synchronized Cluster getOne() {
-		Cluster cluster = clusterQueue.getFirst();
-		clusterMap.remove(cluster.getClusterFilling());
+		Cluster cluster = clusterQueue.pollFirst();
+		if (cluster != null)
+			clusterMap.remove(cluster.getClusterFilling());
 		return cluster;
 	}
 	
 	protected void init() {
-		TempBoard tempBoard = new TempBoard();
-		tempBoard.add(0, 4, 2, 2, false);
-		ArrayList<Board> boards = new ArrayList<Board>();
-		generateBoards(boards, tempBoard, 1);
+		//TempBoard tempBoard = new TempBoard();
+		//tempBoard.add(0, 4, 2, 2, false);
+		//ArrayList<Board> boards = new ArrayList<Board>();
+		//generateBoards(boards, tempBoard, 1);
 		
-		for (Board board : boards)
-			add(board);
+		//for (Board board : boards)
+		//	add(board);
+		
+		generateBoards();
 	}
+	
+	public void generateBoards() {
+		Line[] allLines = new Line[Library.lineLibrary.size()];
+		allLines = Library.lineLibrary.getLines().toArray(allLines);
+		
+		ArrayList<Line> goalLinesList = Library.lineLibrary.getGoalLines(); // TODO GOAL LINES!
+		Line[] goalLines = new Line[goalLinesList.size()];
+		goalLines = goalLinesList.toArray(goalLines);
+		
+		//goalLines = new Line[] {Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false})};
+		
+		generateBoards(new Line[Board.lineSize], new Line[Board.lineSize], allLines, goalLines, 0);
+		System.out.println(numBoards);
+	}
+	
+private void generateBoards(Line[] rows, Line[] columns, Line[] allLines, Line[] goalLines, int depth) {
+	if (depth == Board.lineSize) { // basecase
+		numBoards++; // TODO remove
+		if (numBoards % 100000000 == 0) {
+			System.out.println(numBoards);
+		System.out.println(numBoards);
+		for (Line row : rows) {
+			for (boolean elem : row.occupationLine)
+				System.out.print((elem ? 1 : 0) + " ");
+			System.out.println();
+		}
+		
+		System.out.println();
+		
+		for (int i = 0; i < Board.lineSize; i++) {
+			for (Line column : columns) {	
+				System.out.print((column.occupationLine[i] ? 1 : 0) + " ");
+			}
+			System.out.println();
+		}
+		
+		System.out.println("\n");
+		
+		for (int i = 0; i < Board.lineSize; i++) {
+			Line row = rows[i];
+			Line column = columns[i];
+			
+			for (int j = 0; j < Board.lineSize; j++) {
+				if ((row.occupationLine[j] && columns[j].occupationLine[i]) || (column.occupationLine[j] && rows[j].occupationLine[i])) {
+					System.out.println(i + " " + j);
+				}
+			}
+		}}
+		return; // TODO write to db!
+	}
+	
+	Line[] rowLines = depth == 2 ? goalLines : allLines; // hardcoded escape spot at 2.
+	
+	boolean doesFit;
+	for (Line rowLine : rowLines) {
+		rows[depth] = rowLine;
+		
+		doesFit = true;
+		for (int i = 0; i < depth; i++) // check if row fits
+			if (rowLine.occupationLine[i] && columns[i].occupationLine[depth]) {
+				doesFit = false;
+				break;
+			}
+		
+		if (doesFit) // if row does fit, try all columns
+			for (Line columnLine : allLines) {
+				columns[depth] = columnLine;
+				
+				doesFit = true;
+				for (int i = 0; i <= depth; i++) // check if column fits
+					if (columnLine.occupationLine[i] && rows[i].occupationLine[depth]) {
+						doesFit = false;
+						break;
+					}
+				if (doesFit) // if column does fit, go to next depth
+					generateBoards(rows, columns, allLines, goalLines, depth + 1);
+			}
+	}
+}
 	
 	public void generateBoards(ArrayList<Board> boards, TempBoard board, int depth) {
 		//Line[][] lines = board.getLines();
@@ -63,7 +145,7 @@ public class ClusterLibrary {
 					}
 	}
 
-	static int numBoards = 0; // TODO remove
+	static long numBoards = 0; // TODO remove
 	class TempBoard {
 		int[][] board;
 		

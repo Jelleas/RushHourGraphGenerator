@@ -24,12 +24,67 @@ public class LineLibrary {
 		return lines;
 	}
 	
+	/*
+	public ArrayList<Line> getRowLines() {
+		ArrayList<Line> lines = new ArrayList<Line>();
+		
+		for (Line line : this.lines) {
+			for (int i = 4; i > 0; i--) {
+				if (line.line[i]) {
+					if (!line.line[i - 1]) {
+						lines.add(line);
+						for (boolean elem: line.line) {
+							System.out.print((elem ? 1 : 0) + " ");
+						} System.out.println();
+					}
+					break;
+				}
+				
+				if (i == 1 && line.occupationLine[i]) {
+					lines.add(line);
+					for (boolean elem: line.line) {
+						System.out.print((elem ? 1 : 0) + " ");
+					} System.out.println();
+				}
+			}
+		}
+		System.out.println(lines.size());
+		return lines;
+	}
+	
+	public ArrayList<Line> getColumnLines() { // TODO remove
+		ArrayList<Line> lines = new ArrayList<Line>();
+		
+		for (Line line : this.lines) {
+			if (!line.occupationLine[2]) {
+				lines.add(line);
+				for (boolean elem: line.occupationLine) {
+					System.out.print((elem ? 1 : 0) + " ");
+				} System.out.println();
+			}
+		}
+		
+		return lines;
+	}*/
+	
+	public ArrayList<Line> getGoalLines() {
+		ArrayList<Line> goalLines = new ArrayList<Line>();
+		for (Line line : lines)
+			if (line.line[Board.lineSize - 2] && !line.line[Board.lineSize - 3])
+				goalLines.add(line);
+		return goalLines;
+	}
+	
 	public Line getLine(boolean[] boolLine) {
 		String repr = "";
 		for (boolean elem : boolLine)
 			repr += elem;
 		
 		return linesMap.get(repr);
+	}
+	
+	public int size() {
+		return lines.size();
 	}
 	
 	private void initLines() {
