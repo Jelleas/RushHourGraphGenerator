@@ -62,11 +62,81 @@ public class Board {
 		return reachableBoards;
 	}
 	
+	public boolean isSolution() {
+		Line row = rows[(Board.lineSize - 1) / 2];
+		return row.occupationLine[Board.lineSize - 1] && row.occupationLine[Board.lineSize - 2]; 
+	}
+	
+	/**
+	 * Prints rows and columns in binary coding.
+	 */
 	public void print() {
 		System.out.println("Row/Columns");
 		for (int i = 0; i < Board.lineSize; i++)
 			System.out.println(rows[i] + "   " + columns[i]);
 		System.out.println();
+	}
+	
+	/**
+	 * Prints the board as a matrix where numbers represent vehicles.
+	 */
+	public void prettyPrint() {
+		int[][] field = new int[Board.lineSize][Board.lineSize];
+		int nVehicles = 0;
+		
+		// fill field with vehicles on the rows
+		for (int i = 0; i < Board.lineSize; i++) {
+			Line row = rows[i];
+			int count = 0;
+			
+			for (int j = 0; j < Board.lineSize; j++)
+				if (row.occupationLine[j]) {
+					if (count == 0)
+						nVehicles++;
+					
+					field[i][j] = nVehicles;
+					count++;
+				} else
+					count = 0;
+		}
+		
+		// fill temp field with vehicles on the columns, needed as columns
+		// need to be mirrored along diagonal.
+		int[][] tempField = new int[Board.lineSize][Board.lineSize];
+		for (int i = 0; i < Board.lineSize; i++) {
+			Line column = columns[i];
+			int count = 0;
+			
+			for (int j = 0; j < Board.lineSize; j++)
+				if (column.occupationLine[j]) {
+					if (count == 0)
+						nVehicles++;
+					
+					tempField[i][j] = nVehicles;
+					count++;
+				} else
+					count = 0;
+		}
+		
+		// mirror tempfield along diagonal onto field.
+		for (int i = 0; i < Board.lineSize; i++)
+			for (int j = 0; j < Board.lineSize; j++)
+				if (tempField[j][i] != 0)
+					field[i][j] = tempField[j][i];
+		
+		int maxDigits = 1;
+		for (int i = nVehicles; i > 9; i /= 10, maxDigits++);
+		for (int[] intLine : field) {
+			String repr = "";
+			for (int elem : intLine) {
+				int nDigits = 1;
+				for (int i = elem; i > 9; i /= 10, nDigits++);
+				repr += elem + " ";
+				for (int i = 0; i < maxDigits - nDigits; i++)
+					repr += " ";
+			}
+			System.out.println(repr);
+		}
 	}
 	
 	/**

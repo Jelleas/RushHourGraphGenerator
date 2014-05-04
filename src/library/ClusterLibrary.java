@@ -25,6 +25,7 @@ public class ClusterLibrary {
 		return true;
 	}
 	
+	/* TODO remove?
 	private void add(Board board) {
 		Cluster cluster = clusterMap.get(board.getBoardFilling());
 		if (cluster == null) {
@@ -32,7 +33,7 @@ public class ClusterLibrary {
 			add(cluster);
 		}
 		cluster.add(board);
-	}
+	}*/
 	
 	public synchronized Cluster getOne() {
 		Cluster cluster = clusterQueue.pollFirst();
@@ -57,7 +58,7 @@ public class ClusterLibrary {
 		Line[] allLines = new Line[Library.lineLibrary.size()];
 		allLines = Library.lineLibrary.getLines().toArray(allLines);
 		
-		ArrayList<Line> goalLinesList = Library.lineLibrary.getGoalLines(); // TODO GOAL LINES!
+		ArrayList<Line> goalLinesList = Library.lineLibrary.getGoalLines();
 		Line[] goalLines = new Line[goalLinesList.size()];
 		goalLines = goalLinesList.toArray(goalLines);
 		
@@ -103,7 +104,7 @@ public class ClusterLibrary {
 			return; // TODO write to db!
 		}
 		
-		Line[] rowLines = depth == 2 ? goalLines : allLines; // hardcoded escape spot at 2.
+		Line[] rowLines = depth == (Board.lineSize - 1) / 2 ? goalLines : allLines;
 		
 		boolean doesFit;
 		for (Line rowLine : rowLines) {
