@@ -8,12 +8,65 @@ public class Board {
 	public static final int maxCarSize = 3;
 	
 	private Line[] columns, rows;
-	private ArrayList<Board> reachableBoards;
 	
-	public Board(Line[] columns, Line[] rows) { // TODO finish!
+	public Board(Line[] rows, Line[] columns) { // TODO finish!
 		this.columns = columns;
 		this.rows = rows;
-		this.reachableBoards = new ArrayList<Board>();
+	}
+	
+	public ArrayList<Board> getReachableBoards() {
+		ArrayList<Board> reachableBoards = new ArrayList<Board>();
+		
+		for (int h = 0; h < 2; h++) {
+			Line[] lines, otherLines;
+			if (h == 0) {
+				lines = rows;
+				otherLines = columns;
+			} else {
+				lines = columns;
+				otherLines = rows;
+			}
+		
+			for (int i = 0; i < lines.length; i++) {
+				ArrayList<ArrayList<Line>> reachableLinesSet = lines[i].getReachableLines(); // TODO
+				ArrayList<ArrayList<Integer>> reachableLinesIndicesSet = lines[i].getReachableLinesIndices();
+				
+				for (int j = 0; j < reachableLinesSet.size(); j++) {
+					ArrayList<Line> reachableLines = reachableLinesSet.get(j);
+					ArrayList<Integer> reachableLinesIndices = reachableLinesIndicesSet.get(j);
+					
+					for (int k = 0, length = reachableLines.size(); k < length; k++) {
+						if (otherLines[reachableLinesIndices.get(k)].occupationLine[i])
+							break;
+						else {
+							Line[] tempColumns;
+							Line[] tempRows;
+							
+							if (h == 0) {
+								tempRows = rows.clone();
+								tempRows[i] = reachableLines.get(k);
+								tempColumns = columns;
+							} else {
+								tempColumns = columns.clone();
+								tempColumns[i] = reachableLines.get(k);
+								tempRows = rows;
+							}
+							
+							reachableBoards.add(new Board(tempRows, tempColumns));
+						}
+					}
+				}
+			}
+		}
+		
+		return reachableBoards;
+	}
+	
+	public void print() {
+		System.out.println("Row/Columns");
+		for (int i = 0; i < Board.lineSize; i++)
+			System.out.println(rows[i] + "   " + columns[i]);
+		System.out.println();
 	}
 	
 	/**

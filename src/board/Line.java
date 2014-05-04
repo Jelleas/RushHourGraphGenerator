@@ -6,21 +6,23 @@ import library.Library;
 
 public class Line {
 	private ArrayList<ArrayList<Line>> reachableLines; // all lines reachable from line to the left
+	private ArrayList<ArrayList<Integer>> reachableLinesIndices;
+	
 	public boolean[] line;
 	public boolean[] occupationLine; // all tiles occupied on line
 	private int numberOfCars, numberOfTrucks;
-	private String filling; // TODO
+	private String filling;
+	
+	ArrayList<int[]> carLocLengths; // per car its location and length.
 	
 	public Line(boolean[] line) {
 		this.line = line;
-	}
-	
-	public void init() {
+		
 		this.numberOfCars = 0;
 		this.numberOfTrucks = 0;
 		this.filling = "";
 		this.occupationLine = new boolean[line.length];
-		ArrayList<int[]> carLocLengths = new ArrayList<int[]>();
+		this.carLocLengths = new ArrayList<int[]>();
 		
 		int count = 0;
 		for (int i = 0; i < line.length; i++) {
@@ -47,7 +49,17 @@ public class Line {
 		
 		filling += numberOfCars;
 		filling += numberOfTrucks;
-		
+	}
+	
+	public ArrayList<ArrayList<Line>> getReachableLines() {
+		return reachableLines;
+	}
+	
+	public ArrayList<ArrayList<Integer>> getReachableLinesIndices() {
+		return reachableLinesIndices;
+	}
+	
+	public void init() {
 		reachableLines = new ArrayList<ArrayList<Line>>(); // init reachableLines
 		
 		for (int[] carLocLength : carLocLengths) {
@@ -92,6 +104,22 @@ public class Line {
 			
 			if (!reachables.isEmpty())
 				reachableLines.add(reachables);
+		}
+		
+		// compute indices for checking if move is valid.
+		reachableLinesIndices = new ArrayList<ArrayList<Integer>>();
+		for (ArrayList<Line> lines : reachableLines) {
+			Line line = this; // moves are done incrementally, so keep track of last increment.
+			ArrayList<Integer> indices = new ArrayList<Integer>();
+			
+			for (Line reachableLine : lines)
+				for (int i = 0; i < Board.lineSize; i++)
+					if (reachableLine.occupationLine[i] && !line.occupationLine[i]) {
+						indices.add(i);
+						line = reachableLine;
+						break;
+					}
+			reachableLinesIndices.add(indices);
 		}
 	}
 
