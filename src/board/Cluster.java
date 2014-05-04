@@ -30,7 +30,11 @@ public class Cluster {
 		LinkedList<Board> boardQueue = new LinkedList<Board>(boards);
 		
 		while (!boardQueue.isEmpty()) {
-			Board board = boardQueue.poll(); // TODO
+			Board board = boardQueue.poll();
+			ArrayList<Board> reachableBoards = board.getReachableBoards();
+			for (Board reachableBoard : reachableBoards)
+				if (add(reachableBoard))
+					boardQueue.add(reachableBoard);
 		}
 	}
 	
@@ -40,5 +44,9 @@ public class Cluster {
 	
 	public String getClusterFilling() {
 		return clusterFilling;
+	}
+	
+	public int size() {
+		return boards.size();
 	}
 }
