@@ -64,6 +64,57 @@ public final class Board {
 		return reachableBoards;
 	}
 	
+	/* Ugly version of getReachableBoards
+	public ArrayList<Board> getReachableBoards2() {
+		ArrayList<Board> reachableBoards = new ArrayList<Board>();
+		for (int i = 0; i < rows.length; i++) {
+			ArrayList<ArrayList<Line>> reachableLinesSet = rows[i].getReachableLines();
+			ArrayList<ArrayList<Integer>> reachableLinesIndicesSet = rows[i].getReachableLinesIndices();
+			
+			for (int j = 0; j < reachableLinesSet.size(); j++) {
+				ArrayList<Line> reachableLines = reachableLinesSet.get(j);
+				ArrayList<Integer> reachableLinesIndices = reachableLinesIndicesSet.get(j);
+				
+				for (int k = 0, length = reachableLines.size(); k < length; k++) {
+					if (columns[reachableLinesIndices.get(k)].occupationLine[i])
+						break;
+					else {
+						Line[] tempRows = new Line[rows.length];
+						System.arraycopy(rows, 0, tempRows, 0, rows.length);
+						tempRows[i] = reachableLines.get(k);
+				
+						reachableBoards.add(new Board(tempRows, columns));
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < columns.length; i++) {
+			ArrayList<ArrayList<Line>> reachableLinesSet = columns[i].getReachableLines();
+			ArrayList<ArrayList<Integer>> reachableLinesIndicesSet = columns[i].getReachableLinesIndices();
+			
+			for (int j = 0; j < reachableLinesSet.size(); j++) {
+				ArrayList<Line> reachableLines = reachableLinesSet.get(j);
+				ArrayList<Integer> reachableLinesIndices = reachableLinesIndicesSet.get(j);
+				
+				for (int k = 0, length = reachableLines.size(); k < length; k++) {
+					if (rows[reachableLinesIndices.get(k)].occupationLine[i])
+						break;
+					else {
+						Line[] tempColumns = new Line[columns.length];
+						System.arraycopy(columns, 0, tempColumns, 0, columns.length);
+						tempColumns[i] = reachableLines.get(k);
+				
+						reachableBoards.add(new Board(rows, tempColumns));
+					}
+				}
+			}
+		}
+		
+		
+		return reachableBoards;
+	}*/
+	
 	public boolean isSolution() {
 		Line row = rows[(Board.lineSize - 1) / 2];
 		return row.occupationLine[Board.lineSize - 1] && row.occupationLine[Board.lineSize - 2]; 
