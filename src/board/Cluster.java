@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-public class Cluster {
-	class ClusterBoard {
-		Board board;
-		ClusterBoard parentBoard;
-		int distance;
+public final class Cluster {
+	final class ClusterBoard {
+		final Board board;
+		final ClusterBoard parentBoard;
+		final int distance;
 		
 		public ClusterBoard(Board board, ClusterBoard parentBoard, int distance) {
 			this.board = board;

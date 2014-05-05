@@ -3,8 +3,7 @@ import java.util.ArrayList;
 import library.Library;
 import board.*;
 
-public class Generator {
-	
+public final class Generator {
 	public static Board getHardestBoard() {
 		Line[] rows = new Line[Board.lineSize];
 		Line[] columns = new Line[Board.lineSize];

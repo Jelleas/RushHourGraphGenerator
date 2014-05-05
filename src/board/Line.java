@@ -4,26 +4,27 @@ import java.util.ArrayList;
 
 import library.Library;
 
-public class Line {
-	private ArrayList<ArrayList<Line>> reachableLines; // all lines reachable from line to the left
-	private ArrayList<ArrayList<Integer>> reachableLinesIndices;
+public final class Line {
+	private final ArrayList<ArrayList<Line>> reachableLines; // all lines reachable from line to the left
+	private final ArrayList<ArrayList<Integer>> reachableLinesIndices;
 	
-	public boolean[] line;
-	public boolean[] occupationLine; // all tiles occupied on line
-	private int numberOfCars, numberOfTrucks;
-	private String filling;
+	public final boolean[] line;
+	public final boolean[] occupationLine; // all tiles occupied on line
 	
-	ArrayList<int[]> carLocLengths; // per car its location and length.
+	private final int numberOfCars, numberOfTrucks;
+	private final String filling;
+	private final ArrayList<int[]> carLocLengths; // per car its location and length.
 	
 	public Line(boolean[] line) {
 		this.line = line;
-		
-		this.numberOfCars = 0;
-		this.numberOfTrucks = 0;
-		this.filling = "";
+		this.reachableLines = new ArrayList<ArrayList<Line>>();
+		this.reachableLinesIndices = new ArrayList<ArrayList<Integer>>();
 		this.occupationLine = new boolean[line.length];
 		this.carLocLengths = new ArrayList<int[]>();
 		
+		int numberOfCars = 0;
+		int numberOfTrucks = 0;
+		String filling = "";
 		int count = 0;
 		for (int i = 0; i < line.length; i++) {
 			if (line[i] || count > 0) {
@@ -47,8 +48,12 @@ public class Line {
 			}
 		}
 		
+		this.numberOfCars = numberOfCars;
+		this.numberOfTrucks = numberOfTrucks;
+		
 		filling += numberOfCars;
 		filling += numberOfTrucks;
+		this.filling = filling;
 	}
 	
 	public ArrayList<ArrayList<Line>> getReachableLines() {
@@ -59,9 +64,7 @@ public class Line {
 		return reachableLinesIndices;
 	}
 	
-	public void init() {
-		reachableLines = new ArrayList<ArrayList<Line>>(); // init reachableLines
-		
+	public void init() { // init reachableLines
 		for (int[] carLocLength : carLocLengths) {
 			ArrayList<Line> reachables = new ArrayList<Line>();
 			int carEndPos = carLocLength[0] + carLocLength[1];
@@ -107,7 +110,6 @@ public class Line {
 		}
 		
 		// compute indices for checking if move is valid.
-		reachableLinesIndices = new ArrayList<ArrayList<Integer>>();
 		for (ArrayList<Line> lines : reachableLines) {
 			Line line = this; // moves are done incrementally, so keep track of last increment.
 			ArrayList<Integer> indices = new ArrayList<Integer>();

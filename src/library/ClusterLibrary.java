@@ -6,9 +6,9 @@ import java.util.LinkedList;
 
 import board.*;
 
-public class ClusterLibrary {
-	private HashMap<String, Cluster> clusterMap;
-	private LinkedList<Cluster> clusterQueue;
+public final class ClusterLibrary {
+	private final HashMap<String, Cluster> clusterMap;
+	private final LinkedList<Cluster> clusterQueue;
 	private static long numBoards = 0; // TODO remove
 	
 	protected ClusterLibrary() {

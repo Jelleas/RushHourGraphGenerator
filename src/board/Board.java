@@ -2,12 +2,12 @@ package board;
 
 import java.util.ArrayList;
 
-public class Board {
+public final class Board {
 	public static final int lineSize = 6;
 	public static final int minCarSize = 2;
 	public static final int maxCarSize = 3;
 	
-	private Line[] columns, rows;
+	private final Line[] columns, rows;
 	
 	public Board(Line[] rows, Line[] columns) {
 		this.columns = columns;
