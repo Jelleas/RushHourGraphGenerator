@@ -9,7 +9,7 @@ public class Board {
 	
 	private Line[] columns, rows;
 	
-	public Board(Line[] rows, Line[] columns) { // TODO finish!
+	public Board(Line[] rows, Line[] columns) {
 		this.columns = columns;
 		this.rows = rows;
 	}
@@ -28,7 +28,7 @@ public class Board {
 			}
 		
 			for (int i = 0; i < lines.length; i++) {
-				ArrayList<ArrayList<Line>> reachableLinesSet = lines[i].getReachableLines(); // TODO
+				ArrayList<ArrayList<Line>> reachableLinesSet = lines[i].getReachableLines();
 				ArrayList<ArrayList<Integer>> reachableLinesIndicesSet = lines[i].getReachableLinesIndices();
 				
 				for (int j = 0; j < reachableLinesSet.size(); j++) {
@@ -43,11 +43,13 @@ public class Board {
 							Line[] tempRows;
 							
 							if (h == 0) {
-								tempRows = rows.clone();
+								tempRows = new Line[rows.length];
+								System.arraycopy(rows, 0, tempRows, 0, rows.length);
 								tempRows[i] = reachableLines.get(k);
 								tempColumns = columns;
 							} else {
-								tempColumns = columns.clone();
+								tempColumns = new Line[columns.length];
+								System.arraycopy(columns, 0, tempColumns, 0, columns.length);
 								tempColumns[i] = reachableLines.get(k);
 								tempRows = rows;
 							}

@@ -31,9 +31,51 @@ public class Cluster {
 	}
 	
 	String clusterFilling;
+	ArrayList<Integer> distances;
+
+	/*
+	HashSet<Board> boardSet;
+	ArrayList<Board> boards;
+	public Cluster(Board board) {
+		boardSet = new HashSet<Board>();
+		boards = new ArrayList<Board>();
+		distances = new ArrayList<Integer>();
+		
+		add(board, 0);
+		
+		clusterFilling = board.getBoardFilling();
+	}
+	
+	private boolean add(Board board, int distance) {
+		boolean success = boardSet.add(board);
+		if (success) {
+			boards.add(board);
+			distances.add(distance);
+		}
+		return success;
+	}
+
+	public void expand() {
+		LinkedList<Board> boardQueue = new LinkedList<Board>(boards);
+		LinkedList<Integer> distancesQueue = new LinkedList<Integer>(distances);
+		
+		while (!boardQueue.isEmpty()) {
+			Board board = boardQueue.poll();
+			int distance = distancesQueue.poll();
+			ArrayList<Board> reachableBoards = board.getReachableBoards();
+			
+			for (Board reachableBoard : reachableBoards) {
+				if (add(reachableBoard, distance + 1)) {
+					boardQueue.add(reachableBoard);
+					distancesQueue.add(distance);
+				}
+			}
+		}
+	}*/
+	
+	
 	HashSet<ClusterBoard> boardSet;
 	ArrayList<ClusterBoard> boards;
-	
 	public Cluster(Board board) {
 		boardSet = new HashSet<ClusterBoard>();
 		boards = new ArrayList<ClusterBoard>();
@@ -52,7 +94,6 @@ public class Cluster {
 			
 		this.clusterFilling = boards.get(0).getBoardFilling();
 	}
-	
 	private boolean add(ClusterBoard board) {
 		boolean success = boardSet.add(board);
 		if (success)
@@ -87,11 +128,7 @@ public class Cluster {
 		return boards.get(boards.size() - 1).distance;
 	}
 	
-	/**
-	 * Get distance of board from the original boards fed into the cluster.
-	 * @param board
-	 * @return distance, -1 if board not found.
-	 */
+	
 	public int getDistanceOf(Board board) {
 		for (int i = 0; i < boards.size(); i++)
 			if (boards.get(i).equals(board))
