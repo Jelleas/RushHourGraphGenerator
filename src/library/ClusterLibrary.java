@@ -53,7 +53,7 @@ public final class ClusterLibrary {
 		
 		generateBoards();
 	}
-
+	
 	private static void generateBoards() {
 		Line[] allLines = Library.lineLibrary.getLines().toArray(new Line[Library.lineLibrary.size()]);
 		ArrayList<Line> goalLinesList = Library.lineLibrary.getGoalLines();
@@ -124,6 +124,7 @@ public final class ClusterLibrary {
 			}
 		}
 	}
+	
 	/*
 	public void generateBoards2() {
 		Line[] allLines = new Line[Library.lineLibrary.size()];
@@ -204,7 +205,7 @@ public final class ClusterLibrary {
 		}
 	}
 	
-	/*
+	
 	public void generateBoards3(ArrayList<Board> boards, TempBoard board, int depth) {
 		//Line[][] lines = board.getLines();
 		//boards.add(new Board(lines[0], lines[1])); // TODO reintroduce.
