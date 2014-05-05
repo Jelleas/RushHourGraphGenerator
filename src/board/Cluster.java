@@ -76,6 +76,13 @@ public class Cluster {
 		}
 	}
 	
+	public double getAverageBranchFactor() {
+		int nBranches = 0;
+		for (ClusterBoard board : boards)
+			nBranches += board.board.getReachableBoards().size();
+		return ((double)nBranches) / boards.size();
+	}
+	
 	public int getMaxDistance() {
 		return boards.get(boards.size() - 1).distance;
 	}

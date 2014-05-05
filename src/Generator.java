@@ -66,11 +66,12 @@ public class Generator {
 		}
 		long end = System.currentTimeMillis();
 		
-		System.out.println("Time taken in millisec:         " + (end - start));
-		System.out.println("Size of cluster:                " + cluster.size());
-		System.out.println("Max distance in cluster:        " + cluster.getMaxDistance());
-		System.out.println("Number of solutions in cluster: " + cluster.getSolutions().size());
-		System.out.println("Distance to original board:     " + cluster.getDistanceOf(board));
+		System.out.println("Time taken in millisec:           " + (end - start));
+		System.out.println("Size of cluster:                  " + cluster.size());
+		System.out.println("Max distance in cluster:          " + cluster.getMaxDistance());
+		System.out.println("Number of solutions in cluster:   " + cluster.getSolutions().size());
+		System.out.println("Distance to original board:       " + cluster.getDistanceOf(board));
+		System.out.println("Average branch factor of cluster: " + cluster.getAverageBranchFactor());
 		
 		System.out.println();
 		System.out.println("============= ORIGINAL BOARD =============");
