@@ -3,6 +3,7 @@ package board;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 public final class Cluster {
 	final class ClusterBoard {
@@ -85,7 +86,7 @@ public final class Cluster {
 		clusterFilling = board.getBoardFilling();
 	}
 	
-	public Cluster(ArrayList<Board> boards) {
+	public Cluster(List<Board> boards) {
 		this.boardSet = new HashSet<ClusterBoard>();
 		this.boards = new ArrayList<ClusterBoard>();
 		
@@ -113,6 +114,24 @@ public final class Cluster {
 				ClusterBoard reachableClusterBoard = new ClusterBoard(reachableBoard, board, board.distance + 1);
 				if (add(reachableClusterBoard))
 					boardQueue.add(reachableClusterBoard);
+			}
+		}
+	}
+	
+	public void solve() {
+		LinkedList<ClusterBoard> boardQueue = new LinkedList<ClusterBoard>(boards);
+		
+		while (!boardQueue.isEmpty()) {
+			ClusterBoard board = boardQueue.poll();
+			ArrayList<Board> reachableBoards = board.board.getReachableBoards();
+			
+			for (Board reachableBoard : reachableBoards) {
+				ClusterBoard reachableClusterBoard = new ClusterBoard(reachableBoard, board, board.distance + 1);
+				if (add(reachableClusterBoard)) {
+					if (reachableClusterBoard.board.isSolution())
+						return;
+					boardQueue.add(reachableClusterBoard);
+				}
 			}
 		}
 	}

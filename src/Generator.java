@@ -25,6 +25,27 @@ public final class Generator {
 		return new Board(rows, columns);
 	}
 	
+	public static Board getBoard1() {
+		Line[] rows = new Line[Board.lineSize];
+		Line[] columns = new Line[Board.lineSize];
+		
+		rows[0] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, true, false, false});
+		rows[1] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		rows[2] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, true, false, false});
+		rows[3] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		rows[4] 	= Library.lineLibrary.getLine(new boolean[] {false, true, false, false, false, false});
+		rows[5] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		
+		columns[0] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		columns[1] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[2] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, false, false, false});
+		columns[3] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, true, true, false});
+		columns[4] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[5] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, false, false, false});
+		
+		return new Board(rows, columns);
+	}
+	
 	public static Board getExampleBoard1() {
 		Line[] rows = new Line[Board.lineSize];
 		Line[] columns = new Line[Board.lineSize];
@@ -71,8 +92,8 @@ public final class Generator {
 		System.out.println("Number of solutions in cluster:   " + cluster.getSolutions().size());
 		System.out.println("Distance to original board:       " + cluster.getDistanceOf(board));
 		System.out.println("Average branch factor of cluster: " + cluster.getAverageBranchFactor());
-		/*
-		System.out.println();
+		
+		/*System.out.println();
 		System.out.println("\n============= ORIGINAL BOARD =============\n");
 		board.prettyPrint();
 		System.out.println();
@@ -94,13 +115,31 @@ public final class Generator {
 			boardAtMaxDistance.prettyPrint();
 			System.out.println();
 		}
-		System.out.println("==========================================");*/
+		System.out.println("=========================================="); */
+	}
+	
+	public static void speedTestSolve(Board board, int iterations) {
+		Cluster cluster = null;
+		
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++) {
+			cluster = new Cluster(board);
+			cluster.solve();
+		}
+		long end = System.currentTimeMillis();
+		 
+		System.out.println("Time taken in millisec:           " + (end - start));
+		System.out.println("Found solution at depth:          " + cluster.getMaxDistance());
+		System.out.println("Number of nodes searched:         " + cluster.size());
 	}
 	
 	public static void main(String[] args) {
 		Library.init();
 		
 		Board board = Generator.getHardestBoard();
+		//Board board = Generator.getBoard1();
+		
 		Generator.speedTestClusterExpand(board, 1);
+		//Generator.speedTestSolve(board, 1);
 	}
 }

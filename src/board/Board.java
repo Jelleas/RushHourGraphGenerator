@@ -148,9 +148,11 @@ public final class Board {
 						nVehicles++;
 					
 					field[i][j] = nVehicles;
-					count++;
-				} else
-					count = 0;
+					if (!row.line[j])
+						count = 0;
+					else
+						count++;
+				}
 		}
 		
 		// fill temp field with vehicles on the columns, needed as columns
@@ -167,8 +169,12 @@ public final class Board {
 					
 					tempField[i][j] = nVehicles;
 					count++;
-				} else
-					count = 0;
+					
+					if (!column.line[j])
+						count = 0;
+					else
+						count++;
+				}
 		}
 		
 		// mirror tempfield along diagonal onto field.
@@ -210,7 +216,7 @@ public final class Board {
 			return false;
 		
 		Board other = (Board)o;
-		
+			
 		for (int i = 0; i < lineSize; i++)
 			if (other.columns[i] != this.columns[i] || other.rows[i] != this.rows[i])
 				return false;
