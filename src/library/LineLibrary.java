@@ -2,6 +2,8 @@ package library;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import board.Line;
 import board.Board;
@@ -92,6 +94,17 @@ public class LineLibrary {
 	
 	public int size() {
 		return lines.size();
+	}
+	
+	public int getNumClusterFillings() {
+		int numClusterFillings = 0;
+		Set<String> lineFillingSet = new HashSet<String>();
+		
+		for (Line line : lines) 
+			if (lineFillingSet.add(line.getLineFilling()))
+				numClusterFillings++;
+			
+		return numClusterFillings;
 	}
 	
 	private void initLines() {
