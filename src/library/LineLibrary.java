@@ -23,6 +23,14 @@ public class LineLibrary {
 		return lines;
 	}
 	
+	public ArrayList<Line> getLines(String lineFilling) {
+		ArrayList<Line> linesWithFilling = new ArrayList<Line>();
+		for (Line line : lines)
+			if (line.getLineFilling() == lineFilling)
+				linesWithFilling.add(line);
+		return linesWithFilling;
+	}
+	
 	/*
 	public ArrayList<Line> getRowLines() {
 		ArrayList<Line> lines = new ArrayList<Line>();

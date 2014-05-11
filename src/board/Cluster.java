@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import library.Library;
+
 public final class Cluster {
 	final class ClusterBoard {
 		final Board board;
@@ -95,6 +97,7 @@ public final class Cluster {
 			
 		this.clusterFilling = boards.get(0).getBoardFilling();
 	}
+	
 	private boolean add(ClusterBoard board) {
 		boolean success = boardSet.add(board);
 		if (success)
@@ -134,6 +137,27 @@ public final class Cluster {
 				}
 			}
 		}
+	}
+	
+	// TODO test!
+	public Line[][] getAllColumns() {
+		Line[][] allColumns = new Line[Board.lineSize][];
+		Line[] columns = boards.get(0).board.getColumns();
+		for (int i = 0; i < Board.lineSize; i++) {
+			ArrayList<Line> allColumn = Library.lineLibrary.getLines(columns[i].getLineFilling());
+			allColumns[i] = allColumn.toArray(new Line[allColumn.size()]);
+		}
+		return allColumns;
+	}
+	
+	public Line[][] getAllRows() {
+		Line[][] allRows = new Line[Board.lineSize][];
+		Line[] rows = boards.get(0).board.getColumns();
+		for (int i = 0; i < Board.lineSize; i++) {
+			ArrayList<Line> allRow = Library.lineLibrary.getLines(rows[i].getLineFilling());
+			allRows[i] = allRow.toArray(new Line[allRow.size()]);
+		}
+		return allRows;
 	}
 	
 	public double getAverageBranchFactor() {

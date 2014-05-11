@@ -115,6 +115,14 @@ public final class Board {
 		return reachableBoards;
 	}*/
 	
+	public Line[] getColumns() {
+		return columns;
+	}
+	
+	public Line[] getRows() {
+		return rows;
+	}
+	
 	public boolean isSolution() {
 		Line row = rows[(Board.lineSize - 1) / 2];
 		return row.occupationLine[Board.lineSize - 1] && row.occupationLine[Board.lineSize - 2]; 

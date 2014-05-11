@@ -46,6 +46,48 @@ public final class Generator {
 		return new Board(rows, columns);
 	}
 	
+	public static Board getBoard2() {
+		Line[] rows = new Line[Board.lineSize];
+		Line[] columns = new Line[Board.lineSize];
+		
+		rows[0] 	= Library.lineLibrary.getLine(new boolean[] {false, false, true, false, true, false});
+		rows[1] 	= Library.lineLibrary.getLine(new boolean[] {false, true, false, true, false, false});
+		rows[2] 	= Library.lineLibrary.getLine(new boolean[] {false, false, true, false, false, false});
+		rows[3] 	= Library.lineLibrary.getLine(new boolean[] {true, false, true, false, false, false});
+		rows[4] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		rows[5] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		
+		columns[0] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		columns[1] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[2] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[3] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		columns[4] 	= Library.lineLibrary.getLine(new boolean[] {false, false, true, false, false, false});
+		columns[5] 	= Library.lineLibrary.getLine(new boolean[] {false, true, true, false, false, false});
+		
+		return new Board(rows, columns);
+	}
+	
+	public static Board getBoard3() {
+		Line[] rows = new Line[Board.lineSize];
+		Line[] columns = new Line[Board.lineSize];
+		
+		rows[0] 	= Library.lineLibrary.getLine(new boolean[] {false, true, false, true, true, false});
+		rows[1] 	= Library.lineLibrary.getLine(new boolean[] {false, true, false, false, true, false});
+		rows[2] 	= Library.lineLibrary.getLine(new boolean[] {true, false, false, false, false, false});
+		rows[3] 	= Library.lineLibrary.getLine(new boolean[] {true, false, false, true, false, false});
+		rows[4] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		rows[5] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		
+		columns[0] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		columns[1] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[2] 	= Library.lineLibrary.getLine(new boolean[] {false, false, true, false, true, false});
+		columns[3] 	= Library.lineLibrary.getLine(new boolean[] {false, true, false, false, false, false});
+		columns[4] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[5] 	= Library.lineLibrary.getLine(new boolean[] {false, false, true, false, false, false});
+		
+		return new Board(rows, columns);
+	}
+	
 	public static Board getExampleBoard1() {
 		Line[] rows = new Line[Board.lineSize];
 		Line[] columns = new Line[Board.lineSize];
@@ -128,7 +170,7 @@ public final class Generator {
 		}
 		long end = System.currentTimeMillis();
 		 
-		System.out.println("Time taken in millisec:           " + (end - start));
+		System.out.println("Time taken to solve in millisec:  " + (end - start));
 		System.out.println("Found solution at depth:          " + cluster.getMaxDistance());
 		System.out.println("Number of nodes searched:         " + cluster.size());
 	}
@@ -136,8 +178,13 @@ public final class Generator {
 	public static void main(String[] args) {
 		Library.init();
 		
-		Board board = Generator.getHardestBoard();
+		//Board board = Generator.getHardestBoard();
 		//Board board = Generator.getBoard1();
+		Board board = Generator.getBoard2();
+		//Board board = Generator.getBoard3();
+		
+		ArrayList<Board> boards = Library.clusterLibrary.getBoards(new Cluster(board));
+		System.out.println(boards.size()); // FIXME
 		
 		Generator.speedTestClusterExpand(board, 1);
 		//Generator.speedTestSolve(board, 1);
