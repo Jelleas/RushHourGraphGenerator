@@ -14,7 +14,8 @@ public final class Line {
 	private final int numberOfCars, numberOfTrucks;
 	private final String filling;
 	private final ArrayList<int[]> carLocLengths; // per car its location and length.
-
+	private boolean isGoal;
+	
 	public Line(boolean[] line) {
 		this.line = line;
 		this.reachableLines = new ArrayList<ArrayList<Line>>();
@@ -54,6 +55,7 @@ public final class Line {
 		filling += numberOfCars;
 		filling += numberOfTrucks;
 		this.filling = filling;
+		this.isGoal = this.line[Board.lineSize - 2] && !this.line[Board.lineSize - 3];
 	}
 	
 	public ArrayList<ArrayList<Line>> getReachableLines() {
@@ -131,6 +133,10 @@ public final class Line {
 	
 	public int getNumberOfTrucks() {
 		return this.numberOfTrucks;
+	}
+	
+	public boolean isGoal() {
+		return isGoal;
 	}
 	
 	public void print() {

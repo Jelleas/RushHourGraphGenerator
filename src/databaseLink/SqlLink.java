@@ -10,10 +10,7 @@ import java.sql.Statement;
 /**
  * Is used to send SQL queries to the database and
  * receive data if the query is an extractquery.
- * @author Steve
- *
  */
-
 public class SqlLink {
 
 	//public static SqlLink defaultLink = new SqlLink();

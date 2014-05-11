@@ -1,8 +1,10 @@
 package library;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import board.*;
 
@@ -14,6 +16,10 @@ public final class ClusterLibrary {
 	protected ClusterLibrary() {
 		clusterMap = new HashMap<String, Cluster>();
 		clusterQueue = new LinkedList<Cluster>();
+	}
+	
+	private boolean add(Board board) {
+		return add(new Cluster(board));
 	}
 	
 	private boolean add(Cluster cluster) {
@@ -120,28 +126,97 @@ public final class ClusterLibrary {
 		//for (Board board : boards)
 		//	add(board);
 		
-		generateBoards();
+		generateClusters();
+	}
+	
+	private void generateClusters() {
+		List<List<Line>> goalLines = Library.lineLibrary.getGoalLinesByLineFilling();
+		
+		List<List<Line>> rows = new ArrayList<List<Line>>(Board.lineSize);
+		for (int i = 0; i < Board.lineSize; i++)
+			rows.add(null);
+		
+		generateClusters(Library.lineLibrary.getAllLineFillings(), rows, goalLines, 0);
+		System.out.println(ClusterLibrary.numClusters);
+	}
+	
+	static long numClusters = 0;
+	
+	private boolean generateClusters(List<String> lineFillings, List<List<Line>> allRows, List<List<Line>> goalLinesPerFilling, int depth) {
+		if (depth == (Board.lineSize - 1) / 2) {
+			for (List<Line> goalLines : goalLinesPerFilling) {
+				allRows.set(depth, goalLines);
+				generateClusters(lineFillings, allRows, goalLinesPerFilling, depth + 1);
+			}
+		}
+		else if (depth < Board.lineSize) {
+			for (String lineFillingRow : lineFillings) {
+				allRows.set(depth, Library.lineLibrary.getLines(lineFillingRow));
+				generateClusters(lineFillings, allRows, goalLinesPerFilling, depth + 1);
+			}
+		} 
+		else if (depth < Board.lineSize * 2) {
+			for (String lineFillingColumn : lineFillings) {
+				for (Line column : Library.lineLibrary.getLines(lineFillingColumn)) {
+					List<List<Line>> allRowsTemp = getLinesThatFit(allRows, column, depth - Board.lineSize);
+					if (allRowsTemp != null)
+						if (generateClusters(lineFillings, allRowsTemp, goalLinesPerFilling, depth + 1))
+							break;
+				}
+			}
+		} 
+		else {
+			numClusters++;
+			if (numClusters % 1000000 == 0)
+				System.out.println("numClusters: " + numClusters);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private static List<List<Line>> getLinesThatFit(List<List<Line>> allLines, Line otherLine, int depth) {
+		List<List<Line>> allLinesThatFit = new ArrayList<List<Line>>();
+		
+		for (int i = 0; i < Board.lineSize; i++) {
+			List<Line> linesThatFit;
+			
+			if (otherLine.occupationLine[i]) {
+				linesThatFit = new ArrayList<Line>();
+				for (Line line : allLines.get(i))
+					if (!line.occupationLine[depth])
+						linesThatFit.add(line);
+			} else
+				linesThatFit = allLines.get(i);
+			
+			if (linesThatFit.isEmpty())
+				return null;
+			else
+				allLinesThatFit.add(linesThatFit);
+		}
+		
+		return allLinesThatFit;
 	}
 	
 	private static void generateBoards() {
 		Line[] allLines = Library.lineLibrary.getLines().toArray(new Line[Library.lineLibrary.size()]);
 		ArrayList<Line> goalLinesList = Library.lineLibrary.getGoalLines();
 		Line[] goalLines = goalLinesList.toArray(new Line[goalLinesList.size()]);
-		
+
 		Line[][] rows = new Line[Board.lineSize][];
 		Line[][] columns = new Line[Board.lineSize][];
-		
+
 		for (int i = 0; i < Board.lineSize; i++) {
 			rows[i] = allLines;
 			columns[i] = allLines;
 		}
-		
+
 		rows[(Board.lineSize - 1) / 2] = goalLines;
-		
+
 		generateBoards(rows, columns, new Line[Board.lineSize], 0);
 		System.out.println(ClusterLibrary.numBoards);
 	}
-	
+
 	private static void generateBoards(Line[][] allRows, Line[][] allColumns, Line[] rowSelection, int depth) {
 		if (depth == Board.lineSize)
 			generateBoards(allColumns, rowSelection);
@@ -151,34 +226,34 @@ public final class ClusterLibrary {
 				generateBoards(allRows, allColumns, rowSelection, depth + 1);
 			}
 	}
-	
+
 	private static void generateBoards(Line[][] allColumns, Line[] rowSelection) {
 		ArrayList<ArrayList<Line>> allColumnsThatFit = new ArrayList<ArrayList<Line>>(Board.lineSize);
 		for (int i = 0; i < Board.lineSize; i++) {
 			ArrayList<Line> columnsThatFit = new ArrayList<Line>();
-			
+
 			for (Line column : allColumns[i]) {
 				boolean doesFit = true;
-				
+
 				for (int j = 0; j < Board.lineSize; j++)
 					if (rowSelection[j].occupationLine[i] && column.occupationLine[j]) {
 						doesFit = false;
 						break;
 					}
-				
+
 				if (doesFit)
 					columnsThatFit.add(column);
 			}
-			
+
 			if (!columnsThatFit.isEmpty())
 				allColumnsThatFit.add(columnsThatFit);
 			else
 				return;
 		}
-		
+
 		generateBoards(allColumnsThatFit, rowSelection, new Line[Board.lineSize], 0);
 	}
-	
+
 	private static void generateBoards(ArrayList<ArrayList<Line>> allColumnsThatFit,
 			Line[] rowSelection, Line[] columnSelection, int depth) {
 		if (depth == Board.lineSize) {

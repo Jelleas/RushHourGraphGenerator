@@ -6,10 +6,9 @@ public class Library {
 	
 	public static void init() {
 		lineLibrary.init();
-		
-		/*long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		clusterLibrary.init();
 		long end = System.currentTimeMillis();
-		System.out.println("Time taken generating start boards: " + (end - start));*/
+		System.out.println("Time taken generating start boards: " + (end - start));
 	}
 }

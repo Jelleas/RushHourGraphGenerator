@@ -3,6 +3,7 @@ package library;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import board.Line;
@@ -11,6 +12,7 @@ import board.Board;
 public class LineLibrary {
 	private ArrayList<Line> lines;
 	private HashMap<String, Line> linesMap;
+	private HashMap<String, List<Line>> lineFillingToLines;
 	
 	protected LineLibrary() {
 		initLines();
@@ -25,12 +27,8 @@ public class LineLibrary {
 		return lines;
 	}
 	
-	public ArrayList<Line> getLines(String lineFilling) {
-		ArrayList<Line> linesWithFilling = new ArrayList<Line>();
-		for (Line line : lines)
-			if (line.getLineFilling().equals(lineFilling))
-				linesWithFilling.add(line);
-		return linesWithFilling;
+	public List<Line> getLines(String lineFilling) {
+		return lineFillingToLines.get(lineFilling);
 	}
 	
 	/*
@@ -92,24 +90,39 @@ public class LineLibrary {
 		return linesMap.get(repr);
 	}
 	
+	public List<List<Line>> getGoalLinesByLineFilling() {
+		List<List<Line>> goalLinesByLineFilling = new ArrayList<List<Line>>();
+		
+		for (String lineFilling : getAllLineFillings()) {
+			List<Line> goalLines = new ArrayList<Line>();
+			
+			for (Line line : getLines(lineFilling))
+				if (line.isGoal())
+					goalLines.add(line);
+			
+			if (!goalLines.isEmpty())
+				goalLinesByLineFilling.add(goalLines);
+		}
+		
+		return goalLinesByLineFilling;
+	}
+	
 	public int size() {
 		return lines.size();
 	}
 	
 	public int getNumClusterFillings() {
-		int numClusterFillings = 0;
-		Set<String> lineFillingSet = new HashSet<String>();
-		
-		for (Line line : lines) 
-			if (lineFillingSet.add(line.getLineFilling()))
-				numClusterFillings++;
-			
-		return numClusterFillings;
+		return getAllLineFillings().size();
+	}
+	
+	public List<String> getAllLineFillings() {
+		return new ArrayList<String>(lineFillingToLines.keySet());
 	}
 	
 	private void initLines() {
 		lines = new ArrayList<Line>();
 		linesMap = new HashMap<String, Line>();
+		lineFillingToLines = new HashMap<String, List<Line>>();
 		
 		for (boolean[] boolLine : generateAllBoolLines()) {
 			Line line = new Line(boolLine);
@@ -120,6 +133,11 @@ public class LineLibrary {
 			
 			linesMap.put(repr, line);
 			lines.add(line);
+			List<Line> tempLines = lineFillingToLines.get(line.getLineFilling());
+			if (tempLines == null)
+				tempLines = new ArrayList<Line>();
+			tempLines.add(line);
+			lineFillingToLines.put(line.getLineFilling(), tempLines);
 		}
 	}
 	

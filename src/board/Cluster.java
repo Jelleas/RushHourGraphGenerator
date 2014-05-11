@@ -145,17 +145,17 @@ public final class Cluster {
 		int goalLoc = (Board.lineSize - 1) / 2;
 				
 		for (int i = 0; i < Board.lineSize; i++) {
-			ArrayList<Line> allRow = Library.lineLibrary.getLines(rows[i].getLineFilling());
+			Line[] allRow = Library.lineLibrary.getLines(rows[i].getLineFilling()).toArray(new Line[0]);
 			
 			if (i == goalLoc) {
 				ArrayList<Line> allRowSolutionsOnly = new ArrayList<Line>();
 				for (Line row : allRow)
 					if (row.line[Board.lineSize - 2])
 						allRowSolutionsOnly.add(row);
-				allRow = allRowSolutionsOnly;
+				allRow = allRowSolutionsOnly.toArray(new Line[allRowSolutionsOnly.size()]);
 			}
 			
-			allRows[i] = allRow.toArray(new Line[allRow.size()]);
+			allRows[i] = allRow;
 		}
 		
 		return allRows;
@@ -166,8 +166,7 @@ public final class Cluster {
 		Line[][] allColumns = new Line[Board.lineSize][];
 		Line[] columns = boards.get(0).board.getColumns();
 		for (int i = 0; i < Board.lineSize; i++) {
-			ArrayList<Line> allColumn = Library.lineLibrary.getLines(columns[i].getLineFilling());
-			allColumns[i] = allColumn.toArray(new Line[allColumn.size()]);
+			allColumns[i] = Library.lineLibrary.getLines(columns[i].getLineFilling()).toArray(new Line[0]);
 		}
 		return allColumns;
 	}
@@ -176,8 +175,7 @@ public final class Cluster {
 		Line[][] allRows = new Line[Board.lineSize][];
 		Line[] rows = boards.get(0).board.getRows();
 		for (int i = 0; i < Board.lineSize; i++) {
-			ArrayList<Line> allRow = Library.lineLibrary.getLines(rows[i].getLineFilling());
-			allRows[i] = allRow.toArray(new Line[allRow.size()]);
+			allRows[i] = Library.lineLibrary.getLines(rows[i].getLineFilling()).toArray(new Line[0]);
 		}
 		return allRows;
 	}

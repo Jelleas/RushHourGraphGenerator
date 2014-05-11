@@ -1,9 +1,7 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import databaseLink.SqlLink;
+import databaseLink.Link;
 
 import library.ClusterLibrary;
 import library.Library;
@@ -201,14 +199,14 @@ public final class Generator {
 	
 	public static void main(String[] args) {
 		Library.init();
-		
+		System.out.println(Library.lineLibrary.getLines("00").size());
+		/*
 		try {
-			SqlLink link = new SqlLink();
-			link.insertQuery("INSERT INTO test VALUES(2)");
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+			Link link = new Link();
+			System.out.println(link.clusterLink.check(2));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}*/
 		
 		Board board = Generator.getHardestBoard();
 		//Board board = Generator.getBoard1();
