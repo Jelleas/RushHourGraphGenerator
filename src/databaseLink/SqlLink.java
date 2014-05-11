@@ -77,7 +77,7 @@ public class SqlLink {
             }
             return -1 ;
 		} catch (SQLException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 		}
 		return -2;
 	}

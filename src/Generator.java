@@ -199,14 +199,14 @@ public final class Generator {
 	
 	public static void main(String[] args) {
 		Library.init();
-		System.out.println(Library.lineLibrary.getLines("00").size());
-		/*
+		
 		try {
 			Link link = new Link();
-			System.out.println(link.clusterLink.check(2));
+			for (Line line : Library.lineLibrary.getLines())
+				link.lineFillingLink.add(line);
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}*/
+		}
 		
 		Board board = Generator.getHardestBoard();
 		//Board board = Generator.getBoard1();

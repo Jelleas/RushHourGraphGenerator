@@ -14,7 +14,7 @@ public final class Line {
 	private final int numberOfCars, numberOfTrucks;
 	private final String filling;
 	private final ArrayList<int[]> carLocLengths; // per car its location and length.
-	private boolean isGoal;
+	private boolean isGoal, order;
 	
 	public Line(boolean[] line) {
 		this.line = line;
@@ -22,6 +22,7 @@ public final class Line {
 		this.reachableLinesIndices = new ArrayList<ArrayList<Integer>>();
 		this.occupationLine = new boolean[line.length];
 		this.carLocLengths = new ArrayList<int[]>();
+		this.order = false;
 		
 		int numberOfCars = 0;
 		int numberOfTrucks = 0;
@@ -36,6 +37,8 @@ public final class Line {
 			if (!line[i] || (i == line.length && count > 0)) {
 				if (count == 2) {
 					numberOfCars++;
+					if (filling.equals(""))
+						order = true;
 					filling += "2";
 				} else if (count == 3) {
 					numberOfTrucks++;
@@ -133,6 +136,10 @@ public final class Line {
 	
 	public int getNumberOfTrucks() {
 		return this.numberOfTrucks;
+	}
+	
+	public boolean getOrder() {
+		return order;
 	}
 	
 	public boolean isGoal() {
