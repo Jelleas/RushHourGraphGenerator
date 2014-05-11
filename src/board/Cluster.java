@@ -139,6 +139,28 @@ public final class Cluster {
 		}
 	}
 	
+	public Line[][] getAllRowsSolutionsOnly() {
+		Line[][] allRows = new Line[Board.lineSize][];
+		Line[] rows = boards.get(0).board.getRows();
+		int goalLoc = (Board.lineSize - 1) / 2;
+				
+		for (int i = 0; i < Board.lineSize; i++) {
+			ArrayList<Line> allRow = Library.lineLibrary.getLines(rows[i].getLineFilling());
+			
+			if (i == goalLoc) {
+				ArrayList<Line> allRowSolutionsOnly = new ArrayList<Line>();
+				for (Line row : allRow)
+					if (row.line[Board.lineSize - 2])
+						allRowSolutionsOnly.add(row);
+				allRow = allRowSolutionsOnly;
+			}
+			
+			allRows[i] = allRow.toArray(new Line[allRow.size()]);
+		}
+		
+		return allRows;
+	}
+	
 	// TODO test!
 	public Line[][] getAllColumns() {
 		Line[][] allColumns = new Line[Board.lineSize][];
@@ -152,7 +174,7 @@ public final class Cluster {
 	
 	public Line[][] getAllRows() {
 		Line[][] allRows = new Line[Board.lineSize][];
-		Line[] rows = boards.get(0).board.getColumns();
+		Line[] rows = boards.get(0).board.getRows();
 		for (int i = 0; i < Board.lineSize; i++) {
 			ArrayList<Line> allRow = Library.lineLibrary.getLines(rows[i].getLineFilling());
 			allRows[i] = allRow.toArray(new Line[allRow.size()]);

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+import library.ClusterLibrary;
 import library.Library;
 import board.*;
 
@@ -113,13 +114,16 @@ public final class Generator {
 		board.print();
 		for (Board reachableBoard : reachableBoards)
 			reachableBoard.print();
+		
+		System.out.println("Number of iterations              " + iterations);
 		System.out.println("Time taken in millisec: " + (end - start));
 	}
 	
 	public static void speedTestClusterExpand(Board board, long iterations) {
 		Cluster cluster = new Cluster(board);
-		cluster.expand();
-		ArrayList<Board> solutions = cluster.getSolutions();
+		//cluster.expand();
+		//ArrayList<Board> solutions = cluster.getSolutions();
+		ArrayList<Board> solutions = ClusterLibrary.getAllSolutions(new Cluster(board));
 		
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < iterations; i++) {
@@ -127,7 +131,8 @@ public final class Generator {
 			cluster.expand();
 		}
 		long end = System.currentTimeMillis();
-		 
+
+		System.out.println("Number of iterations              " + iterations);
 		System.out.println("Time taken in millisec:           " + (end - start));
 		System.out.println("Size of cluster:                  " + cluster.size());
 		System.out.println("Max distance in cluster:          " + cluster.getMaxDistance());
@@ -169,24 +174,36 @@ public final class Generator {
 			cluster.solve();
 		}
 		long end = System.currentTimeMillis();
-		 
+
+		System.out.println("Number of iterations              " + iterations);
 		System.out.println("Time taken to solve in millisec:  " + (end - start));
 		System.out.println("Found solution at depth:          " + cluster.getMaxDistance());
 		System.out.println("Number of nodes searched:         " + cluster.size());
 	}
 	
+	public static void speedTestFindSolutions(Board board, int iterations) {
+		ArrayList<Board> solutions = null;
+		
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < iterations; i++)
+			solutions = ClusterLibrary.getAllSolutions(new Cluster(board));
+		long end = System.currentTimeMillis();
+		
+		System.out.println("Number of iterations              " + iterations);
+		System.out.println("Time taken in millisec:           " + (end - start));
+		System.out.println("Number of solutions found:        " + solutions.size());
+	}
+	
 	public static void main(String[] args) {
 		Library.init();
 		
-		//Board board = Generator.getHardestBoard();
+		Board board = Generator.getHardestBoard();
 		//Board board = Generator.getBoard1();
-		Board board = Generator.getBoard2();
+		//Board board = Generator.getBoard2();
 		//Board board = Generator.getBoard3();
 		
-		ArrayList<Board> boards = Library.clusterLibrary.getBoards(new Cluster(board));
-		System.out.println(boards.size()); // FIXME
-		
-		Generator.speedTestClusterExpand(board, 1);
+		//Generator.speedTestClusterExpand(board, 1);
 		//Generator.speedTestSolve(board, 1);
+		Generator.speedTestFindSolutions(board, 1000);
 	}
 }

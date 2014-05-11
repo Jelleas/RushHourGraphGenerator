@@ -26,7 +26,7 @@ public class LineLibrary {
 	public ArrayList<Line> getLines(String lineFilling) {
 		ArrayList<Line> linesWithFilling = new ArrayList<Line>();
 		for (Line line : lines)
-			if (line.getLineFilling() == lineFilling)
+			if (line.getLineFilling().equals(lineFilling))
 				linesWithFilling.add(line);
 		return linesWithFilling;
 	}

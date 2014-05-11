@@ -14,7 +14,7 @@ public final class Line {
 	private final int numberOfCars, numberOfTrucks;
 	private final String filling;
 	private final ArrayList<int[]> carLocLengths; // per car its location and length.
-	
+
 	public Line(boolean[] line) {
 		this.line = line;
 		this.reachableLines = new ArrayList<ArrayList<Line>>();

@@ -25,28 +25,32 @@ public final class ClusterLibrary {
 		return true;
 	}
 	
-	public ArrayList<Board> getBoards(Cluster cluster) {
+	public static ArrayList<Board> getAllBoards(Cluster cluster) {
 		return getBoards(cluster.getAllRows(), cluster.getAllColumns());
 	}
 	
-	private ArrayList<Board> getBoards(Line[][] allRows, Line[][] allColumns) {
+	public static ArrayList<Board> getAllSolutions(Cluster cluster) {
+		return getBoards(cluster.getAllRowsSolutionsOnly(), cluster.getAllColumns());
+	}
+	
+	private static ArrayList<Board> getBoards(Line[][] allRows, Line[][] allColumns) {
 		ArrayList<Board> boards = new ArrayList<Board>();
-		generateBoards(boards, allRows, allColumns, new Line[Board.lineSize], 0);
+		getBoards(boards, allRows, allColumns, new Line[Board.lineSize], 0);
 		return boards;
 	}
 	
-	private static void generateBoards(ArrayList<Board> boards, Line[][] allRows, Line[][] allColumns,
+	private static void getBoards(ArrayList<Board> boards, Line[][] allRows, Line[][] allColumns,
 			Line[] rowSelection, int depth) {
 		if (depth == Board.lineSize)
-			generateBoards(boards, allColumns, rowSelection);
+			getBoards(boards, allColumns, rowSelection);
 		else
 			for (Line row : allRows[depth]) {
 				rowSelection[depth] = row;
-				generateBoards(boards, allRows, allColumns, rowSelection, depth + 1);
+				getBoards(boards, allRows, allColumns, rowSelection, depth + 1);
 			}
 	}
 	
-	private static void generateBoards(ArrayList<Board> boards, Line[][] allColumns, Line[] rowSelection) {
+	private static void getBoards(ArrayList<Board> boards, Line[][] allColumns, Line[] rowSelection) {
 		ArrayList<ArrayList<Line>> allColumnsThatFit = new ArrayList<ArrayList<Line>>(Board.lineSize);
 		for (int i = 0; i < Board.lineSize; i++) {
 			ArrayList<Line> columnsThatFit = new ArrayList<Line>();
@@ -70,10 +74,10 @@ public final class ClusterLibrary {
 				return;
 		}
 		
-		generateBoards(boards, allColumnsThatFit, rowSelection, new Line[Board.lineSize], 0);
+		getBoards(boards, allColumnsThatFit, rowSelection, new Line[Board.lineSize], 0);
 	}
 	
-	private static void generateBoards(ArrayList<Board> boards,
+	private static void getBoards(ArrayList<Board> boards,
 			ArrayList<ArrayList<Line>> allColumnsThatFit,
 			Line[] rowSelection, Line[] columnSelection, int depth) {
 		if (depth == Board.lineSize) {
@@ -85,7 +89,7 @@ public final class ClusterLibrary {
 		} else {
 			for (Line column : allColumnsThatFit.get(depth)) {
 				columnSelection[depth] = column;
-				generateBoards(allColumnsThatFit, rowSelection, columnSelection, depth + 1);
+				getBoards(boards, allColumnsThatFit, rowSelection, columnSelection, depth + 1);
 			}
 		}
 	}
