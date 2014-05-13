@@ -33,12 +33,12 @@ public final class ClusterLibrary {
 		return true;
 	}
 	
-	public static ArrayList<Board> getAllBoards(Cluster cluster) {
-		return getBoards(cluster.getAllRows(), cluster.getAllColumns());
+	public static ArrayList<Board> getAllBoards(Board board) {
+		return getBoards(board.getAllRows(), board.getAllColumns());
 	}
 	
-	public static ArrayList<Board> getAllSolutions(Cluster cluster) {
-		return getBoards(cluster.getAllRowsSolutionsOnly(), cluster.getAllColumns());
+	public static ArrayList<Board> getAllSolutions(Board board) {
+		return getBoards(board.getAllRowsSolutionsOnly(), board.getAllColumns());
 	}
 	
 	private static ArrayList<Board> getBoards(Line[][] allRows, Line[][] allColumns) {
@@ -183,22 +183,22 @@ public final class ClusterLibrary {
 		} 
 		else {
 			
-			/*Line[] rows = new Line[Board.lineSize];
+			Line[] rows = new Line[Board.lineSize];
 			for (int i = 0; i < Board.lineSize; i++)
 				rows[i] = allRows.get(i).get(0);
 			
-			Cluster cluster = new Cluster(getAllSolutions(new Cluster(new Board(rows, columns))));
+			Cluster cluster = new Cluster(getAllSolutions(new Board(rows, columns)));
 			cluster.expand();
-			link.clusterLink.add(cluster);*/
+			link.clusterLink.add(cluster);
 			
 			numClusters++;
-			if (numClusters % 2500000 == 0)
+			if (numClusters % 250 == 0)
 				System.out.println("numClusters: " + numClusters + " Time taken: " + (System.currentTimeMillis() - start));
-			/*
-			if (numClusters == 10000) {// TODO remove!
+			
+			if (numClusters == 20000) {// TODO remove!
 				System.out.println("Total Time taken: " + (System.currentTimeMillis() - start));
 				System.exit(0);
-			}*/
+			}
 			return true;
 		}
 		

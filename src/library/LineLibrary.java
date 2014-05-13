@@ -13,6 +13,7 @@ public class LineLibrary {
 	private ArrayList<Line> lines;
 	private HashMap<String, Line> linesMap;
 	private HashMap<String, List<Line>> lineFillingToLines;
+	private HashMap<Integer, List<Line>> lineFillingIdToLines;
 	
 	protected LineLibrary() {
 		initLines();
@@ -24,8 +25,10 @@ public class LineLibrary {
 	}
 	
 	protected void syncWithDatabase(Link link) {
-		for (Line line : lines)
+		for (Line line : lines) {
 			line.syncWithDatabase(link);
+			lineFillingIdToLines.put(line.getId(), lineFillingToLines.get(line.getLineFilling()));
+		}
 	}
 	
 	public ArrayList<Line> getLines() {
@@ -34,6 +37,10 @@ public class LineLibrary {
 	
 	public List<Line> getLines(String lineFilling) {
 		return lineFillingToLines.get(lineFilling);
+	}
+	
+	public List<Line> getLines(int lineFillingId) {
+		return lineFillingIdToLines.get(lineFillingId);
 	}
 	
 	/*
@@ -128,6 +135,7 @@ public class LineLibrary {
 		lines = new ArrayList<Line>();
 		linesMap = new HashMap<String, Line>();
 		lineFillingToLines = new HashMap<String, List<Line>>();
+		lineFillingIdToLines = new HashMap<Integer, List<Line>>();
 		
 		for (boolean[] boolLine : generateAllBoolLines()) {
 			Line line = new Line(boolLine);

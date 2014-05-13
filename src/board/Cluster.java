@@ -1,6 +1,7 @@
 package board;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,69 +34,25 @@ public final class Cluster {
 		}
 	}
 	
-	String clusterFilling;
-	ArrayList<Integer> distances;
-
-	/*
-	HashSet<Board> boardSet;
-	ArrayList<Board> boards;
+	private String clusterFilling;
+	private HashSet<ClusterBoard> boardSet;
+	private ArrayList<ClusterBoard> boards;
+	private int numSolutions;
+	
 	public Cluster(Board board) {
-		boardSet = new HashSet<Board>();
-		boards = new ArrayList<Board>();
-		distances = new ArrayList<Integer>();
-		
-		add(board, 0);
-		
-		clusterFilling = board.getBoardFilling();
+		this(Arrays.asList(new Board[] {board}));
 	}
 	
-	private boolean add(Board board, int distance) {
-		boolean success = boardSet.add(board);
-		if (success) {
-			boards.add(board);
-			distances.add(distance);
-		}
-		return success;
-	}
-
-	public void expand() {
-		LinkedList<Board> boardQueue = new LinkedList<Board>(boards);
-		LinkedList<Integer> distancesQueue = new LinkedList<Integer>(distances);
-		
-		while (!boardQueue.isEmpty()) {
-			Board board = boardQueue.poll();
-			int distance = distancesQueue.poll();
-			ArrayList<Board> reachableBoards = board.getReachableBoards();
-			
-			for (Board reachableBoard : reachableBoards) {
-				if (add(reachableBoard, distance + 1)) {
-					boardQueue.add(reachableBoard);
-					distancesQueue.add(distance);
-				}
-			}
-		}
-	}*/
-	
-	
-	HashSet<ClusterBoard> boardSet;
-	ArrayList<ClusterBoard> boards;
-	public Cluster(Board board) {
-		boardSet = new HashSet<ClusterBoard>();
-		boards = new ArrayList<ClusterBoard>();
-		
-		add(new ClusterBoard(board, null, 0));
-		
-		clusterFilling = board.getBoardFilling();
-	}
-	
-	public Cluster(List<Board> boards) {
+	public Cluster(List<Board> solutionBoards) {
 		this.boardSet = new HashSet<ClusterBoard>();
 		this.boards = new ArrayList<ClusterBoard>();
 		
-		for (Board board : boards)
+		for (Board board : solutionBoards)
 			add(new ClusterBoard(board, null, 0));
-			
-		this.clusterFilling = boards.get(0).getBoardFilling();
+		
+		this.numSolutions = solutionBoards.size();
+		
+		this.clusterFilling = solutionBoards.get(0).getBoardFilling();
 	}
 	
 	private boolean add(ClusterBoard board) {
@@ -139,46 +96,6 @@ public final class Cluster {
 		}
 	}
 	
-	public Line[][] getAllRowsSolutionsOnly() {
-		Line[][] allRows = new Line[Board.lineSize][];
-		Line[] rows = boards.get(0).board.getRows();
-		int goalLoc = (Board.lineSize - 1) / 2;
-				
-		for (int i = 0; i < Board.lineSize; i++) {
-			Line[] allRow = Library.lineLibrary.getLines(rows[i].getLineFilling()).toArray(new Line[0]);
-			
-			if (i == goalLoc) {
-				ArrayList<Line> allRowSolutionsOnly = new ArrayList<Line>();
-				for (Line row : allRow)
-					if (row.line[Board.lineSize - 2])
-						allRowSolutionsOnly.add(row);
-				allRow = allRowSolutionsOnly.toArray(new Line[allRowSolutionsOnly.size()]);
-			}
-			
-			allRows[i] = allRow;
-		}
-		
-		return allRows;
-	}
-	
-	public Line[][] getAllColumns() {
-		Line[][] allColumns = new Line[Board.lineSize][];
-		Line[] columns = boards.get(0).board.getColumns();
-		for (int i = 0; i < Board.lineSize; i++) {
-			allColumns[i] = Library.lineLibrary.getLines(columns[i].getLineFilling()).toArray(new Line[0]);
-		}
-		return allColumns;
-	}
-	
-	public Line[][] getAllRows() {
-		Line[][] allRows = new Line[Board.lineSize][];
-		Line[] rows = boards.get(0).board.getRows();
-		for (int i = 0; i < Board.lineSize; i++) {
-			allRows[i] = Library.lineLibrary.getLines(rows[i].getLineFilling()).toArray(new Line[0]);
-		}
-		return allRows;
-	}
-	
 	public double getAverageBranchFactor() {
 		int nBranches = 0;
 		for (ClusterBoard board : boards)
@@ -206,6 +123,17 @@ public final class Cluster {
 				solutions.add(board.board);
 		
 		return solutions;
+	}
+	
+	public int refreshNumSolutions() {
+		numSolutions = -1;
+		return getNumSolutions();
+	}
+	
+	public int getNumSolutions() {
+		if (numSolutions < 0)
+			numSolutions = getSolutions().size();
+		return numSolutions;
 	}
 	
 	public ArrayList<Board> getPathToSolution(Board board) {

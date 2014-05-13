@@ -1,5 +1,6 @@
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import databaseLink.Link;
 
@@ -126,7 +127,7 @@ public final class Generator {
 		Cluster cluster = new Cluster(board);
 		//cluster.expand();
 		//ArrayList<Board> solutions = cluster.getSolutions();
-		ArrayList<Board> solutions = ClusterLibrary.getAllSolutions(new Cluster(board));
+		ArrayList<Board> solutions = ClusterLibrary.getAllSolutions(board);
 		
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < iterations; i++) {
@@ -189,7 +190,7 @@ public final class Generator {
 		
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < iterations; i++)
-			solutions = ClusterLibrary.getAllSolutions(new Cluster(board));
+			solutions = ClusterLibrary.getAllSolutions(board);
 		long end = System.currentTimeMillis();
 		
 		System.out.println("Number of iterations              " + iterations);
@@ -197,20 +198,22 @@ public final class Generator {
 		System.out.println("Number of solutions found:        " + solutions.size());
 	}
 	
-	public static void buildDatabase(Link link) {
-		for (Line line : Library.lineLibrary.getLines())
-			line.setId(link.lineFillingLink.add(line));
-		
-		Library.clusterLibrary.fillDatabase(link);
-	}
-	
 	public static void main(String[] args) {
 		Library.init();
 		
 		try {
 			Link link = new Link();
-			buildDatabase(link);
-			//Library.syncWithDatabase(link);
+			//Library.buildDatabase(link);
+			Library.syncWithDatabase(link);
+			
+			/*List<Cluster> clusters = link.clusterLink.getWhere("size > 90000 LIMIT 10");
+			for (Cluster cluster : clusters) {
+				System.out.println(cluster.size());
+				System.out.println(cluster.getMaxDistance());
+				System.out.println(cluster.getNumSolutions());
+			}*/
+			
+			System.out.println(link.clusterLink.getAvarage("maxDistance"));
 			//Board board = Generator.getHardestBoard();
 			//Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Cluster(board)));
 			//cluster.expand();

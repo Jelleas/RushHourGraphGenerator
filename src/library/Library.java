@@ -1,5 +1,6 @@
 package library;
 
+import board.Line;
 import databaseLink.Link;
 
 public class Library {
@@ -17,5 +18,12 @@ public class Library {
 	
 	public static void syncWithDatabase(Link link) {
 		lineLibrary.syncWithDatabase(link);
+	}
+	
+	public static void buildDatabase(Link link) {
+		for (Line line : lineLibrary.getLines())
+			line.setId(link.lineFillingLink.add(line));
+		
+		clusterLibrary.fillDatabase(link);
 	}
 }

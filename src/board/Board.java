@@ -2,6 +2,8 @@ package board;
 
 import java.util.ArrayList;
 
+import library.Library;
+
 public final class Board {
 	public static final int lineSize = 6;
 	public static final int minCarSize = 2;
@@ -64,56 +66,42 @@ public final class Board {
 		return reachableBoards;
 	}
 	
-	/* Ugly version of getReachableBoards
-	public ArrayList<Board> getReachableBoards2() {
-		ArrayList<Board> reachableBoards = new ArrayList<Board>();
-		for (int i = 0; i < rows.length; i++) {
-			ArrayList<ArrayList<Line>> reachableLinesSet = rows[i].getReachableLines();
-			ArrayList<ArrayList<Integer>> reachableLinesIndicesSet = rows[i].getReachableLinesIndices();
+	public Line[][] getAllRowsSolutionsOnly() {
+		Line[][] allRows = new Line[Board.lineSize][];
+		int goalLoc = (Board.lineSize - 1) / 2;
+				
+		for (int i = 0; i < Board.lineSize; i++) {
+			Line[] allRow = Library.lineLibrary.getLines(rows[i].getLineFilling()).toArray(new Line[0]);
 			
-			for (int j = 0; j < reachableLinesSet.size(); j++) {
-				ArrayList<Line> reachableLines = reachableLinesSet.get(j);
-				ArrayList<Integer> reachableLinesIndices = reachableLinesIndicesSet.get(j);
-				
-				for (int k = 0, length = reachableLines.size(); k < length; k++) {
-					if (columns[reachableLinesIndices.get(k)].occupationLine[i])
-						break;
-					else {
-						Line[] tempRows = new Line[rows.length];
-						System.arraycopy(rows, 0, tempRows, 0, rows.length);
-						tempRows[i] = reachableLines.get(k);
-				
-						reachableBoards.add(new Board(tempRows, columns));
-					}
-				}
+			if (i == goalLoc) {
+				ArrayList<Line> allRowSolutionsOnly = new ArrayList<Line>();
+				for (Line row : allRow)
+					if (row.line[Board.lineSize - 2])
+						allRowSolutionsOnly.add(row);
+				allRow = allRowSolutionsOnly.toArray(new Line[allRowSolutionsOnly.size()]);
 			}
+			
+			allRows[i] = allRow;
 		}
 		
-		for (int i = 0; i < columns.length; i++) {
-			ArrayList<ArrayList<Line>> reachableLinesSet = columns[i].getReachableLines();
-			ArrayList<ArrayList<Integer>> reachableLinesIndicesSet = columns[i].getReachableLinesIndices();
-			
-			for (int j = 0; j < reachableLinesSet.size(); j++) {
-				ArrayList<Line> reachableLines = reachableLinesSet.get(j);
-				ArrayList<Integer> reachableLinesIndices = reachableLinesIndicesSet.get(j);
-				
-				for (int k = 0, length = reachableLines.size(); k < length; k++) {
-					if (rows[reachableLinesIndices.get(k)].occupationLine[i])
-						break;
-					else {
-						Line[] tempColumns = new Line[columns.length];
-						System.arraycopy(columns, 0, tempColumns, 0, columns.length);
-						tempColumns[i] = reachableLines.get(k);
-				
-						reachableBoards.add(new Board(rows, tempColumns));
-					}
-				}
-			}
-		}
+		return allRows;
+	}
+	
+	public Line[][] getAllColumns() {
+		Line[][] allColumns = new Line[Board.lineSize][];
+		for (int i = 0; i < Board.lineSize; i++)
+			allColumns[i] = Library.lineLibrary.getLines(columns[i].getLineFilling()).toArray(new Line[0]);
 		
+		return allColumns;
+	}
+	
+	public Line[][] getAllRows() {
+		Line[][] allRows = new Line[Board.lineSize][];
+		for (int i = 0; i < Board.lineSize; i++)
+			allRows[i] = Library.lineLibrary.getLines(rows[i].getLineFilling()).toArray(new Line[0]);
 		
-		return reachableBoards;
-	}*/
+		return allRows;
+	}
 	
 	public Line[] getColumns() {
 		return columns;
