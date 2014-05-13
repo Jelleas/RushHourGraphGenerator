@@ -2,9 +2,9 @@ package library;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import databaseLink.Link;
 
 import board.Line;
 import board.Board;
@@ -21,6 +21,11 @@ public class LineLibrary {
 	protected void init() {
 		for (Line line : lines)
 			line.init();
+	}
+	
+	protected void syncWithDatabase(Link link) {
+		for (Line line : lines)
+			line.syncWithDatabase(link);
 	}
 	
 	public ArrayList<Line> getLines() {
@@ -59,7 +64,7 @@ public class LineLibrary {
 		return lines;
 	}
 	
-	public ArrayList<Line> getColumnLines() { // TODO remove
+	public ArrayList<Line> getColumnLines() {
 		ArrayList<Line> lines = new ArrayList<Line>();
 		
 		for (Line line : this.lines) {

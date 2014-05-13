@@ -202,8 +202,7 @@ public final class Generator {
 		
 		try {
 			Link link = new Link();
-			for (Line line : Library.lineLibrary.getLines())
-				link.lineFillingLink.add(line);
+			Library.syncWithDatabase(link);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -215,6 +214,6 @@ public final class Generator {
 		
 		//Generator.speedTestClusterExpand(board, 1);
 		//Generator.speedTestSolve(board, 1);
-		Generator.speedTestFindSolutions(board, 1000);
+		Generator.speedTestFindSolutions(board, 1);
 	}
 }

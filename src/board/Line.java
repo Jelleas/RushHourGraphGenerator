@@ -2,6 +2,8 @@ package board;
 
 import java.util.ArrayList;
 
+import databaseLink.Link;
+
 import library.Library;
 
 public final class Line {
@@ -14,7 +16,9 @@ public final class Line {
 	private final int numberOfCars, numberOfTrucks;
 	private final String filling;
 	private final ArrayList<int[]> carLocLengths; // per car its location and length.
-	private boolean isGoal, order;
+	private boolean isGoal, isCarFirst;
+	
+	private int id;
 	
 	public Line(boolean[] line) {
 		this.line = line;
@@ -22,7 +26,8 @@ public final class Line {
 		this.reachableLinesIndices = new ArrayList<ArrayList<Integer>>();
 		this.occupationLine = new boolean[line.length];
 		this.carLocLengths = new ArrayList<int[]>();
-		this.order = false;
+		this.isCarFirst = false;
+		this.id = -1;
 		
 		int numberOfCars = 0;
 		int numberOfTrucks = 0;
@@ -38,7 +43,7 @@ public final class Line {
 				if (count == 2) {
 					numberOfCars++;
 					if (filling.equals(""))
-						order = true;
+						isCarFirst = true;
 					filling += "2";
 				} else if (count == 3) {
 					numberOfTrucks++;
@@ -67,6 +72,10 @@ public final class Line {
 	
 	public ArrayList<ArrayList<Integer>> getReachableLinesIndices() {
 		return reachableLinesIndices;
+	}
+	
+	public void syncWithDatabase(Link link) {
+		this.id = link.lineFillingLink.getId(this);
 	}
 	
 	public void init() { // init reachableLines
@@ -130,6 +139,10 @@ public final class Line {
 		}
 	}
 
+	public int getId() {
+		return this.id;
+	}
+	
 	public int getNumberOfCars() {
 		return this.numberOfCars;
 	}
@@ -138,8 +151,8 @@ public final class Line {
 		return this.numberOfTrucks;
 	}
 	
-	public boolean getOrder() {
-		return order;
+	public boolean isCarFirst() {
+		return isCarFirst;
 	}
 	
 	public boolean isGoal() {

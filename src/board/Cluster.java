@@ -161,7 +161,6 @@ public final class Cluster {
 		return allRows;
 	}
 	
-	// TODO test!
 	public Line[][] getAllColumns() {
 		Line[][] allColumns = new Line[Board.lineSize][];
 		Line[] columns = boards.get(0).board.getColumns();

@@ -1,5 +1,7 @@
 package library;
 
+import databaseLink.Link;
+
 public class Library {
 	public static final LineLibrary lineLibrary = new LineLibrary();
 	public static final ClusterLibrary clusterLibrary = new ClusterLibrary();
@@ -10,5 +12,9 @@ public class Library {
 		clusterLibrary.init();
 		long end = System.currentTimeMillis();
 		System.out.println("Time taken generating start boards: " + (end - start));*/
+	}
+	
+	public static void syncWithDatabase(Link link) {
+		lineLibrary.syncWithDatabase(link);
 	}
 }
