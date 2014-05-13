@@ -110,7 +110,7 @@ public class ClusterLinker extends TableLinker{
 		return getInt("SELECT MIN(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
 	}
 	
-	public double getAvarage(String columnName) {
+	public double getAverage(String columnName) {
 		return getDouble("SELECT AVG(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
 	}
 } 

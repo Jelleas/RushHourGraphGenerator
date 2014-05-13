@@ -206,14 +206,16 @@ public final class Generator {
 			//Library.buildDatabase(link);
 			Library.syncWithDatabase(link);
 			
-			/*List<Cluster> clusters = link.clusterLink.getWhere("size > 90000 LIMIT 10");
-			for (Cluster cluster : clusters) {
-				System.out.println(cluster.size());
-				System.out.println(cluster.getMaxDistance());
-				System.out.println(cluster.getNumSolutions());
-			}*/
+			List<Cluster> clusters = link.clusterLink.getWhere("size < 2 LIMIT 10");
 			
-			System.out.println(link.clusterLink.getAvarage("maxDistance"));
+			for (Cluster cluster : clusters) {
+				System.out.println("Size:         " + cluster.size());
+				System.out.println("MaxDistance:  " + cluster.getMaxDistance());
+				System.out.println("NumSolutions: " + cluster.getNumSolutions());
+				System.out.println();
+			}
+			
+			System.out.println(link.clusterLink.getAverage("maxDistance"));
 			//Board board = Generator.getHardestBoard();
 			//Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Cluster(board)));
 			//cluster.expand();
