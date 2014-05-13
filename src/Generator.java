@@ -197,12 +197,24 @@ public final class Generator {
 		System.out.println("Number of solutions found:        " + solutions.size());
 	}
 	
+	public static void buildDatabase(Link link) {
+		for (Line line : Library.lineLibrary.getLines())
+			line.setId(link.lineFillingLink.add(line));
+		
+		Library.clusterLibrary.fillDatabase(link);
+	}
+	
 	public static void main(String[] args) {
 		Library.init();
 		
 		try {
 			Link link = new Link();
-			Library.syncWithDatabase(link);
+			buildDatabase(link);
+			//Library.syncWithDatabase(link);
+			//Board board = Generator.getHardestBoard();
+			//Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Cluster(board)));
+			//cluster.expand();
+			//link.clusterLink.add(cluster);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -214,6 +226,6 @@ public final class Generator {
 		
 		//Generator.speedTestClusterExpand(board, 1);
 		//Generator.speedTestSolve(board, 1);
-		Generator.speedTestFindSolutions(board, 1);
+		//Generator.speedTestFindSolutions(board, 1);
 	}
 }

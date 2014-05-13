@@ -75,7 +75,11 @@ public final class Line {
 	}
 	
 	public void syncWithDatabase(Link link) {
-		this.id = link.lineFillingLink.getId(this);
+		setId(link.lineFillingLink.getId(this));
+	}
+	
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	public void init() { // init reachableLines

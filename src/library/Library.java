@@ -8,6 +8,7 @@ public class Library {
 	
 	public static void init() {
 		lineLibrary.init();
+		clusterLibrary.init();
 		/*long start = System.currentTimeMillis();
 		clusterLibrary.init();
 		long end = System.currentTimeMillis();

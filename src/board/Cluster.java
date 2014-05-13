@@ -257,4 +257,24 @@ public final class Cluster {
 	public int size() {
 		return boards.size();
 	}
+	
+	public int[] getRowFillingIds() {
+		int[] rowFillingIds = new int[Board.lineSize];
+		Line[] rows = boards.get(0).board.getRows();
+		
+		for (int i = 0; i < Board.lineSize; i++)
+			rowFillingIds[i] = rows[i].getId();
+		
+		return rowFillingIds;
+	}
+	
+	public int[] getColumnFillingsIds() {
+		int[] columnFillingIds = new int[Board.lineSize];
+		Line[] columns = boards.get(0).board.getColumns();
+		
+		for (int i = 0; i < Board.lineSize; i++)
+			columnFillingIds[i] = columns[i].getId();
+		
+		return columnFillingIds;
+	}
 }
