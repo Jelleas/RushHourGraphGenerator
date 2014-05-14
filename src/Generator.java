@@ -206,7 +206,8 @@ public final class Generator {
 			//Library.buildDatabase(link);
 			Library.syncWithDatabase(link);
 			
-			List<Cluster> clusters = link.clusterLink.getWhere("size < 2 LIMIT 10");
+			//List<Cluster> clusters = link.clusterLink.getWhere("size > 90000 LIMIT 5");
+			List<Cluster> clusters = link.clusterLink.getRandom(5);
 			
 			for (Cluster cluster : clusters) {
 				System.out.println("Size:         " + cluster.size());
@@ -224,7 +225,7 @@ public final class Generator {
 			e.printStackTrace();
 		}
 		
-		Board board = Generator.getHardestBoard();
+		//Board board = Generator.getHardestBoard();
 		//Board board = Generator.getBoard1();
 		//Board board = Generator.getBoard2();
 		//Board board = Generator.getBoard3();

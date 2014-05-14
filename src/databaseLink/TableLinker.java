@@ -12,6 +12,35 @@ public abstract class TableLinker {
 		this.link = link;
 	}
 	
+	protected int getInt(String getQuery, String columnName) {
+		ResultSet rs = link.sqlLink.extractQuery(getQuery);
+		int result = -1;
+		
+		try {
+			if (rs.next())
+				result = rs.getInt(columnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
+	protected double getDouble(String getQuery, String columnName) {
+		ResultSet rs = link.sqlLink.extractQuery(getQuery);
+		double result = -1;
+		
+		try {
+			if (rs.next())
+				result = rs.getDouble(columnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
+	
 	/**
 	 * Check if id exists in table in database.
 	 * @param id of entry to check for

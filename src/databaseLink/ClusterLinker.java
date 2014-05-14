@@ -12,7 +12,7 @@ import board.Board;
 import board.Cluster;
 import board.Line;
 
-public class ClusterLinker extends TableLinker{
+public class ClusterLinker extends TableLinker {
 
 	public ClusterLinker(Link link) {
 		super("cluster", link);
@@ -70,32 +70,15 @@ public class ClusterLinker extends TableLinker{
 		return clusters;
 	}
 	
-	private int getInt(String getQuery, String columnName) {
-		ResultSet rs = link.sqlLink.extractQuery(getQuery);
-		int result = -1;
+	public ArrayList<Cluster> getRandom(int limit) {
+		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 		
-		try {
-			if (rs.next())
-				result = rs.getInt(columnName);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		for (int i = 0; i < limit; i++)
+			clusters.add(get("SELECT * FROM " + tableName +
+					" WHERE id >= (SELECT FLOOR( MAX(id) * RAND()) FROM " +
+					tableName + " ) ORDER BY id LIMIT 1").get(0));
 		
-		return result;
-	}
-	
-	private double getDouble(String getQuery, String columnName) {
-		ResultSet rs = link.sqlLink.extractQuery(getQuery);
-		double result = -1;
-		
-		try {
-			if (rs.next())
-				result = rs.getDouble(columnName);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return result;
+		return clusters;
 	}
 	
 	public ArrayList<Cluster> getWhere(String whereClause) {

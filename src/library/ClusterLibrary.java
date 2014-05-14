@@ -126,8 +126,7 @@ public final class ClusterLibrary {
 		//generateBoards(boards, tempBoard, 1);
 		
 		//for (Board board : boards)
-		//	add(board);
-		
+		//	add(board);	
 	}
 	
 	public void fillDatabase(Link link) {
