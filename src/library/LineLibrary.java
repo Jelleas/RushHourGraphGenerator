@@ -14,6 +14,7 @@ public class LineLibrary {
 	private HashMap<String, Line> linesMap;
 	private HashMap<String, List<Line>> lineFillingToLines;
 	private HashMap<Integer, List<Line>> lineFillingIdToLines;
+	private ArrayList<String> lineFillings;
 	
 	protected LineLibrary() {
 		initLines();
@@ -128,7 +129,21 @@ public class LineLibrary {
 	}
 	
 	public List<String> getAllLineFillings() {
-		return new ArrayList<String>(lineFillingToLines.keySet());
+		return lineFillings;
+	}
+	
+	public List<String> getGoalLineFillings() {
+		List<String> goalLineFillings = new ArrayList<String>();
+		
+		for (String lineFilling : getAllLineFillings()) {
+			for (Line line : getLines(lineFilling))
+				if (line.isGoal()) {
+					goalLineFillings.add(lineFilling);
+					break;
+				}
+		}
+		
+		return goalLineFillings;
 	}
 	
 	private void initLines() {
@@ -136,6 +151,7 @@ public class LineLibrary {
 		linesMap = new HashMap<String, Line>();
 		lineFillingToLines = new HashMap<String, List<Line>>();
 		lineFillingIdToLines = new HashMap<Integer, List<Line>>();
+		lineFillings = new ArrayList<String>();
 		
 		for (boolean[] boolLine : generateAllBoolLines()) {
 			Line line = new Line(boolLine);
@@ -150,6 +166,16 @@ public class LineLibrary {
 			if (tempLines == null)
 				tempLines = new ArrayList<Line>();
 			tempLines.add(line);
+
+			boolean shouldAdd = true;
+			for (String lineFilling : lineFillings)
+				if (lineFilling.equals(line.getLineFilling())) {
+					shouldAdd = false;
+					break;
+				}
+			if (shouldAdd)
+				lineFillings.add(line.getLineFilling());
+			
 			lineFillingToLines.put(line.getLineFilling(), tempLines);
 		}
 	}

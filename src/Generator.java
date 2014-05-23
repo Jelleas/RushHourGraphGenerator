@@ -103,6 +103,27 @@ public final class Generator {
 		}
 		
 		rows[2] = Library.lineLibrary.getLine(new boolean[] {false, true, false, false, false, false});
+		columns[0] = Library.lineLibrary.getLine(new boolean[] {false, true, false, false, false, false});
+		return new Board(rows, columns);
+	}
+	
+	public static Board getExampleBoard2() {
+		Line[] rows = new Line[Board.lineSize];
+		Line[] columns = new Line[Board.lineSize];
+		
+		rows[0] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, true, true, false});
+		rows[1] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, true, true, false});
+		rows[2] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, false, true, false});
+		rows[3] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, true, false, false});
+		rows[4] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, false, false, false});
+		rows[5] 	= Library.lineLibrary.getLine(new boolean[] {true, true, false, false, false, false});
+		
+		columns[0] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[1] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[2] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, false, false});
+		columns[3] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		columns[4] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, false, true, false});
+		columns[5] 	= Library.lineLibrary.getLine(new boolean[] {false, false, false, true, true, false});
 		
 		return new Board(rows, columns);
 	}
@@ -198,32 +219,34 @@ public final class Generator {
 		System.out.println("Number of solutions found:        " + solutions.size());
 	}
 	
+	public static void testPickRandom(Link link, int numClusters) {
+		//List<Cluster> clusters = link.clusterLink.getWhere("size > 90000 LIMIT 5");
+		List<Cluster> clusters = link.clusterLink.getRandom(numClusters);
+		
+		for (Cluster cluster : clusters) {
+			System.out.println("Size:         " + cluster.size());
+			System.out.println("MaxDistance:  " + cluster.getMaxDistance());
+			System.out.println("NumSolutions: " + cluster.getNumSolutions());
+			System.out.println();
+		}
+		
+		System.out.println(link.clusterLink.getAverage("maxDistance"));
+		//Board board = Generator.getHardestBoard();
+		//Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Cluster(board)));
+		//cluster.expand();
+		//link.clusterLink.add(cluster);
+	}
+	
 	public static void main(String[] args) {
 		Library.init();
 		
-		try {
-			Link link = new Link();
-			//Library.buildDatabase(link);
-			Library.syncWithDatabase(link);
-			
-			//List<Cluster> clusters = link.clusterLink.getWhere("size > 90000 LIMIT 5");
-			List<Cluster> clusters = link.clusterLink.getRandom(5);
-			
-			for (Cluster cluster : clusters) {
-				System.out.println("Size:         " + cluster.size());
-				System.out.println("MaxDistance:  " + cluster.getMaxDistance());
-				System.out.println("NumSolutions: " + cluster.getNumSolutions());
-				System.out.println();
-			}
-			
-			System.out.println(link.clusterLink.getAverage("maxDistance"));
-			//Board board = Generator.getHardestBoard();
-			//Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Cluster(board)));
-			//cluster.expand();
-			//link.clusterLink.add(cluster);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			Library.syncWithDatabase();
+			//ClusterLibrary.cheatBoard = link.clusterLink.getWhere("id = 1").get(0).getBoards().get(0);
+			Library.buildDatabase();
+			//Library.clusterLibrary.generateBoards();
+
+		
+		//Library.clusterLibrary.generateBoards();
 		
 		//Board board = Generator.getHardestBoard();
 		//Board board = Generator.getBoard1();

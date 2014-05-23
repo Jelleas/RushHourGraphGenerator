@@ -45,18 +45,18 @@ public class SqlLink {
 
 	/**
 	 * Query the database, returns the result of the query.
+	 * MEMORY LEAK HERE, DOES NOT CLOSE STATEMENT! TODO
 	 * @param q The query.
 	 * @return result of query.
 	 */
-	protected ResultSet extractQuery(String q) {
-		ResultSet rs = null;
-		try{
-			Statement st = con.createStatement();
-            rs = st.executeQuery(q);
+	protected Statement getStatement() {
+		Statement st = null;
+		try {
+			st = con.createStatement();
 		} catch (SQLException ex) {
 			System.out.println(ex);
 		} 
-		return rs;
+		return st;
 	}
 	
 	/**
@@ -70,8 +70,12 @@ public class SqlLink {
 			Statement st = con.createStatement();
             st.executeUpdate(q, Statement.RETURN_GENERATED_KEYS);
             ResultSet rs = st.getGeneratedKeys();
-            if (rs.next())
-                return rs.getInt(1);
+            if (rs.next()) {
+                int result = rs.getInt(1);
+                rs.close();
+                st.close();
+                return result;
+            }
             return -1;
 		} catch (SQLException ex) {
 			ex.printStackTrace();

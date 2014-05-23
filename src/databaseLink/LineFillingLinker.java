@@ -2,6 +2,7 @@ package databaseLink;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import board.Line;
 
@@ -35,11 +36,17 @@ public class LineFillingLinker extends TableLinker {
 				" `numCars` = " + numCars +
 				" AND `numTrucks` = " + numTrucks +
 				" AND `carFirst` = " + carFirst;
-		ResultSet rs = link.sqlLink.extractQuery(getQuery);
+		Statement st = link.sqlLink.getStatement();
 		
 		try {
-			if (rs.next())
-				return rs.getInt("id");
+			ResultSet rs = st.executeQuery(getQuery);
+			if (rs.next()) {
+				int id = rs.getInt("id");
+				rs.close();
+				return id;
+			}
+			rs.close();
+			st.close();
 		} catch (SQLException e) {}
 		
 		return -1;

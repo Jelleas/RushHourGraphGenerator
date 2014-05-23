@@ -131,8 +131,15 @@ public final class ClusterLibrary {
 	
 	public void fillDatabase(Link link) {
 		start = System.currentTimeMillis();
+		startFromId = link.clusterLink.getMax("id");
 		generateClusters(link);
+		System.out.println(Node.numClusters + " " + Node.numNewClusters);
 	}
+	
+	static long numClusters = 0; // TODO remove
+	static long start;
+	long startFromId;
+	
 	
 	private void generateClusters(Link link) {
 		List<List<Line>> goalLines = Library.lineLibrary.getGoalLinesByLineFilling();
@@ -144,13 +151,9 @@ public final class ClusterLibrary {
 		Line[] columns = new Line[Board.lineSize];
 		
 		generateClusters(link, Library.lineLibrary.getAllLineFillings(), rows, goalLines, columns, 0);
-		System.out.println(ClusterLibrary.numClusters);
 	}
-	
-	static long numClusters = 0; // TODO remove
-	static long start;
-	
-	private boolean generateClusters(Link link, List<String> lineFillings, List<List<Line>> allRows,
+
+	private void generateClusters(Link link, List<String> lineFillings, List<List<Line>> allRows,
 			List<List<Line>> goalLinesPerFilling, Line[] columns, int depth) {
 		if (depth == (Board.lineSize - 1) / 2) {
 			for (List<Line> goalLines : goalLinesPerFilling) {
@@ -164,47 +167,66 @@ public final class ClusterLibrary {
 				generateClusters(link, lineFillings, allRows, goalLinesPerFilling, columns, depth + 1);
 			}
 		} 
-		else if (depth < Board.lineSize * 2) {
-			boolean anyLineFit = false;
-			for (String lineFillingColumn : lineFillings) {
-				for (Line column : Library.lineLibrary.getLines(lineFillingColumn)) {
-					List<List<Line>> allRowsTemp = getLinesThatFit(allRows, column, depth - Board.lineSize);
-					if (allRowsTemp != null) {
-						columns[depth - Board.lineSize] = column;
-						if (generateClusters(link, lineFillings, allRowsTemp, goalLinesPerFilling, columns, depth + 1)) {
-							anyLineFit = true;
-							break;
-						}
-					}
-				}
-			}
-			return anyLineFit;
-		} 
-		else {
-			
+		else if (depth == Board.lineSize) {
+			//generateClustersColumns(link, lineFillings, lineFillings, allRows, columns, 0);
+			Node node = new Node(lineFillings);
+			node.kill(allRows, new ArrayList<Line>(Board.lineSize));
+		} 	
+	}
+	static long numSolutions = 0;
+	/*
+	public static List<String> generateClustersColumns(Link link, List<String> allColumnFillings, List<String> columnFillings,
+			List<List<Line>> allRows, Line[] columns, int depth) {
+		if (depth == Board.lineSize) {
 			Line[] rows = new Line[Board.lineSize];
 			for (int i = 0; i < Board.lineSize; i++)
 				rows[i] = allRows.get(i).get(0);
 			
-			Cluster cluster = new Cluster(getAllSolutions(new Board(rows, columns)));
-			cluster.expand();
-			link.clusterLink.add(cluster);
-			
+			Board board = new Board(rows, columns);
+			//if (!link.clusterLink.contains(new Cluster(board))) {
+				//Cluster cluster = new Cluster(getAllSolutions(board));
+				//cluster.expand();
+				//link.clusterLink.add(cluster);
+			//}
+			numSolutions += getAllSolutions(board).size();
 			numClusters++;
-			if (numClusters % 250 == 0)
-				System.out.println("numClusters: " + numClusters + " Time taken: " + (System.currentTimeMillis() - start));
-			
-			if (numClusters == 20000) {// TODO remove!
-				System.out.println("Total Time taken: " + (System.currentTimeMillis() - start));
-				System.exit(0);
+			if (numClusters % 10000 == 0) {
+				System.out.println("numClusters: " + numClusters + " numSolutions: " + numSolutions + " Time taken: " + (System.currentTimeMillis() - start));
+
+				//System.out.println(allColumnFillings.size());
 			}
-			return true;
+			return null;
 		}
 		
-		return false;
+		List<String> columnFillingsThatDoNotFit = new ArrayList<String>();
+
+		for (String lineFillingColumn : columnFillings) {
+			List<String> tempColumnFillings = allColumnFillings;
+			boolean noneFit = true;
+			
+			for (Line column : Library.lineLibrary.getLines(lineFillingColumn)) {
+				List<List<Line>> allRowsTemp = getLinesThatFit(allRows, column, depth);
+				
+				if (allRowsTemp != null) {
+					noneFit = false;
+					columns[depth] = column;
+					tempColumnFillings = generateClustersColumns(link, allColumnFillings, tempColumnFillings, allRowsTemp, columns, depth + 1);
+					
+					if (depth + 1 == Board.lineSize)
+						break;
+				}
+			}
+			
+			if (noneFit) 
+				columnFillingsThatDoNotFit.add(lineFillingColumn);
+		}
+		
+		return columnFillingsThatDoNotFit;
 	}
+	*/
 	
-	private static List<List<Line>> getLinesThatFit(List<List<Line>> allLines, Line otherLine, int depth) {
+	
+	public static List<List<Line>> getLinesThatFit(List<List<Line>> allLines, Line otherLine, int depth) {
 		List<List<Line>> allLinesThatFit = new ArrayList<List<Line>>();
 		
 		for (int i = 0; i < Board.lineSize; i++) {
@@ -227,7 +249,116 @@ public final class ClusterLibrary {
 		return allLinesThatFit;
 	}
 	
-	private static void generateBoards() {
+	/*
+	public static void generateClusters(Link link) {
+		generateClusters(link, Library.lineLibrary.getGoalLineFillings(), new String[Board.lineSize], 0);
+	}
+	
+	private static void generateClusters(Link link, List<String> goalLineFillings, String[] rowLineFillings, int depth) {
+		if (depth == Board.lineSize) {
+			HashMap<String, Cluster> clusterMap = generateClusters(rowLineFillings);
+			
+			for (String key : clusterMap.keySet()) {
+				Cluster cluster = clusterMap.get(key);
+				if (!link.clusterLink.contains(cluster)) {
+					cluster.expand();
+					link.clusterLink.add(cluster);
+				}
+			}
+			return;
+		}
+		
+		List<String> lineFillings = depth == (Board.lineSize - 1) / 2 ? goalLineFillings : Library.lineLibrary.getAllLineFillings();
+	
+		for (String lineFilling : lineFillings) {
+			rowLineFillings[depth] = lineFilling;
+			generateClusters(link, goalLineFillings, rowLineFillings, depth + 1);
+		}
+	
+	}
+	
+	private static HashMap<String, Cluster> generateClusters(String[] rowLineFillings) {
+		HashMap<String, Cluster> clusterMap = new HashMap<String, Cluster>();
+		
+		List<List<Line>> allRows = new ArrayList<List<Line>>(Board.lineSize);
+		List<List<Line>> allColumns = new ArrayList<List<Line>>(Board.lineSize);
+		
+		for (int i = 0; i < Board.lineSize; i++) {
+			allRows.add(Library.lineLibrary.getLines(rowLineFillings[i]));
+			allColumns.add(Library.lineLibrary.getLines());
+		}
+		
+		generateClusters(clusterMap, allRows, allColumns, new Line[Board.lineSize], 0);
+		
+		return clusterMap;
+	}
+	
+	private static void generateClusters(HashMap<String, Cluster> clusterMap, List<List<Line>> allRows, List<List<Line>> allColumns, Line[] rowSelection, int depth) {
+		if (depth == Board.lineSize)
+			generateClusters(clusterMap, allColumns, rowSelection);
+		else
+			for (Line row : allRows.get(depth)) {
+				rowSelection[depth] = row;
+				generateClusters(clusterMap, allRows, allColumns, rowSelection, depth + 1);
+			}
+	}
+	
+	private static void generateClusters(HashMap<String, Cluster> clusterMap, List<List<Line>> allColumns, Line[] rowSelection) {
+		List<List<Line>> allColumnsThatFit = new ArrayList<List<Line>>(Board.lineSize);
+		for (int i = 0; i < Board.lineSize; i++) {
+			ArrayList<Line> columnsThatFit = new ArrayList<Line>();
+
+			for (Line column : allColumns.get(i)) {
+				boolean doesFit = true;
+
+				for (int j = 0; j < Board.lineSize; j++)
+					if (rowSelection[j].occupationLine[i] && column.occupationLine[j]) {
+						doesFit = false;
+						break;
+					}
+
+				if (doesFit)
+					columnsThatFit.add(column);
+			}
+
+			if (!columnsThatFit.isEmpty())
+				allColumnsThatFit.add(columnsThatFit);
+			else
+				return;
+		}
+
+		generateClusters(clusterMap, allColumnsThatFit, rowSelection, new Line[Board.lineSize], 0);
+	}*/
+	
+	private static void generateClusters(HashMap<String, Cluster> clusterMap, List<List<Line>> allColumnsThatFit,
+			Line[] rowSelection, Line[] columnSelection, int depth) {
+		if (depth == Board.lineSize) {
+			// TODO write to db
+			Board board = new Board(rowSelection, columnSelection);
+			Cluster cluster = clusterMap.get(board.getBoardFilling());
+			if (cluster == null) {
+				cluster = new Cluster(board);
+				clusterMap.put(board.getBoardFilling(), cluster);
+				numClusters++;
+				
+				if (numClusters % 25000 == 0)
+					System.out.println("numClusters: " + numClusters + " Time taken: " + (System.currentTimeMillis() - start));
+			} else {
+				cluster.addNewSolution(board);
+			}
+			
+			numBoards++;
+			if (numBoards % 100000000 == 0)
+				System.out.println(numBoards);
+		} else {
+			for (Line column : allColumnsThatFit.get(depth)) {
+				columnSelection[depth] = column;
+				generateClusters(clusterMap, allColumnsThatFit, rowSelection, columnSelection, depth + 1);
+			}
+		}
+	}
+	
+	public static void generateBoards() {
 		Line[] allLines = Library.lineLibrary.getLines().toArray(new Line[Library.lineLibrary.size()]);
 		ArrayList<Line> goalLinesList = Library.lineLibrary.getGoalLines();
 		Line[] goalLines = goalLinesList.toArray(new Line[goalLinesList.size()]);
@@ -282,7 +413,7 @@ public final class ClusterLibrary {
 
 		generateBoards(allColumnsThatFit, rowSelection, new Line[Board.lineSize], 0);
 	}
-
+	
 	private static void generateBoards(ArrayList<ArrayList<Line>> allColumnsThatFit,
 			Line[] rowSelection, Line[] columnSelection, int depth) {
 		if (depth == Board.lineSize) {

@@ -2,8 +2,10 @@ package databaseLink;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import library.ClusterLibrary;
 import library.Library;
@@ -23,6 +25,7 @@ public class ClusterLinker extends TableLinker {
 		int[] columns = cluster.getColumnFillingsIds();
 		int maxDistance = cluster.getMaxDistance();
 		int size = cluster.size();
+		int numSolutions = cluster.getNumSolutions();
 		
 		String rowsString = "";
 		String columnsString = "";
@@ -31,20 +34,21 @@ public class ClusterLinker extends TableLinker {
 			columnsString += columns[i] + ", ";
 		}
 		
-		String values = rowsString + columnsString + maxDistance + ", " + size;
+		String values = rowsString + columnsString + maxDistance + ", " + size + ", " + numSolutions;
 		
 		String addQuery = "INSERT INTO `" + tableName + "`(`rowFilling0`, `rowFilling1`, `rowFilling2`, `rowFilling3`, `rowFilling4`, `rowFilling5`," +
-				" `columnFilling0`, `columnFilling1`, `columnFilling2`, `columnFilling3`, `columnFilling4`, `columnFilling5`, `maxDistance`, `size`)" +
+				" `columnFilling0`, `columnFilling1`, `columnFilling2`, `columnFilling3`, `columnFilling4`, `columnFilling5`, `maxDistance`, `size`, `numSolutions`)" +
 				" VALUES(" + values + ")";
 		
 		return link.sqlLink.insertQuery(addQuery);
 	}
 	
 	private ArrayList<Cluster> get(String getQuery) {
-		ResultSet rs = link.sqlLink.extractQuery(getQuery);
+		Statement st = link.sqlLink.getStatement();
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 		
 		try {
+			ResultSet rs = st.executeQuery(getQuery);
 			while (rs.next()) {
 				int[] rowFillings = new int[] {rs.getInt("rowFilling0"), rs.getInt("rowFilling1"),
 						rs.getInt("rowFilling2"), rs.getInt("rowFilling3"), rs.getInt("rowFilling4"), rs.getInt("rowFilling5")};
@@ -63,6 +67,8 @@ public class ClusterLinker extends TableLinker {
 				cluster.expand();
 				clusters.add(cluster);
 			}
+			rs.close();
+			st.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -73,10 +79,14 @@ public class ClusterLinker extends TableLinker {
 	public ArrayList<Cluster> getRandom(int limit) {
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 		
-		for (int i = 0; i < limit; i++)
-			clusters.add(get("SELECT * FROM " + tableName +
-					" WHERE id >= (SELECT FLOOR( MAX(id) * RAND()) FROM " +
-					tableName + " ) ORDER BY id LIMIT 1").get(0));
+		int min = getMin("id");
+		int max = getMax("id");
+		Random rand = new Random();
+		
+		for (int i = 0; i < limit; i++) {
+			int id = rand.nextInt(max - min + 1) + min;
+			clusters.add(getWhere("id = " + id).get(0));
+		}
 		
 		return clusters;
 	}
@@ -93,7 +103,26 @@ public class ClusterLinker extends TableLinker {
 		return getInt("SELECT MIN(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
 	}
 	
+	/*public long getSum(String columnName) {
+		return 
+	}*/
+	
 	public double getAverage(String columnName) {
 		return getDouble("SELECT AVG(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	}
+	
+	public boolean contains(Cluster cluster) {
+		int[] rowIds = cluster.getRowFillingIds();
+		int[] columnIds = cluster.getColumnFillingsIds();
+		String getQuery = "SELECT id FROM " + tableName + " WHERE ";
+		
+		for (int i = 0; i < Board.lineSize; i++)
+			getQuery += "`rowFilling" + i + "` = " + rowIds[i] + " AND ";
+		
+		for (int i = 0; i < Board.lineSize - 1; i++)
+			getQuery += "`columnFilling" + i + "` = " + columnIds[i] + " AND ";
+		
+		getQuery += "`columnFilling" + (Board.lineSize - 1) + "` = " + columnIds[Board.lineSize - 1];
+		return getInt(getQuery, "id") > 0;
 	}
 } 

@@ -122,7 +122,7 @@ public final class Board {
 	public void print() {
 		System.out.println("Row/Columns");
 		for (int i = 0; i < Board.lineSize; i++)
-			System.out.println(rows[i] + "   " + columns[i]);
+			System.out.println(rows[i].getId() + ": " + rows[i] + "   " + columns[i].getId() + ": " + columns[i]);
 		System.out.println();
 	}
 	

@@ -2,6 +2,7 @@ package databaseLink;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public abstract class TableLinker {
 	String tableName;
@@ -13,28 +14,34 @@ public abstract class TableLinker {
 	}
 	
 	protected int getInt(String getQuery, String columnName) {
-		ResultSet rs = link.sqlLink.extractQuery(getQuery);
+		Statement st = link.sqlLink.getStatement();
 		int result = -1;
 		
 		try {
+			ResultSet rs = st.executeQuery(getQuery);
 			if (rs.next())
 				result = rs.getInt(columnName);
-		} catch (SQLException e) {
-			e.printStackTrace();
+			rs.close();
+			st.close();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
 		}
 		
 		return result;
 	}
 	
 	protected double getDouble(String getQuery, String columnName) {
-		ResultSet rs = link.sqlLink.extractQuery(getQuery);
+		Statement st = link.sqlLink.getStatement();
 		double result = -1;
 		
 		try {
+			ResultSet rs = st.executeQuery(getQuery);
 			if (rs.next())
 				result = rs.getDouble(columnName);
-		} catch (SQLException e) {
-			e.printStackTrace();
+			rs.close();
+			st.close();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
 		}
 		
 		return result;
@@ -49,12 +56,18 @@ public abstract class TableLinker {
 	 */
 	public boolean check(int id) {
 		String query = "SELECT id FROM " + tableName + " WHERE id = " + id + ";";
-		ResultSet questionQueryResult = link.sqlLink.extractQuery(query);
+		Statement st = link.sqlLink.getStatement();
 		
 		try {
-			questionQueryResult.next();
-			if (questionQueryResult.getInt("id") == id)
-				return true;
+			ResultSet questionQueryResult = st.executeQuery(query);
+			if (questionQueryResult.next())
+				if (questionQueryResult.getInt("id") == id) {
+					questionQueryResult.close();
+					st.close();
+					return true;
+				}
+			questionQueryResult.close();
+			st.close();
 		} catch (SQLException e) {}
 		
 		return false;

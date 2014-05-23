@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import library.Library;
-
 public final class Cluster {
 	final class ClusterBoard {
 		final Board board;
@@ -48,11 +46,15 @@ public final class Cluster {
 		this.boards = new ArrayList<ClusterBoard>();
 		
 		for (Board board : solutionBoards)
-			add(new ClusterBoard(board, null, 0));
+			addNewSolution(board);
 		
 		this.numSolutions = solutionBoards.size();
 		
 		this.clusterFilling = solutionBoards.get(0).getBoardFilling();
+	}
+	
+	public boolean addNewSolution(Board board) {
+		return add(new ClusterBoard(board, null, 0));
 	}
 	
 	private boolean add(ClusterBoard board) {
@@ -204,5 +206,15 @@ public final class Cluster {
 			columnFillingIds[i] = columns[i].getId();
 		
 		return columnFillingIds;
+	}
+	
+	public boolean equals(Object o) {
+		if (o instanceof Cluster)
+			return this.getClusterFilling().equals(((Cluster)o).getClusterFilling());
+		return false;
+	}
+	
+	public int hashCode() {
+		return this.getClusterFilling().hashCode();
 	}
 }
