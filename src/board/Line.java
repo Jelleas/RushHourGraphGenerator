@@ -20,6 +20,9 @@ public final class Line {
 	
 	private int id;
 	
+	// if true, one tile moved -> one step, else: x tiles moved -> one step
+	public static final boolean alternativeCountSteps = false; 
+	
 	public Line(boolean[] line) {
 		this.line = line;
 		this.reachableLines = new ArrayList<ArrayList<Line>>();
@@ -87,44 +90,73 @@ public final class Line {
 			ArrayList<Line> reachables = new ArrayList<Line>();
 			int carEndPos = carLocLength[0] + carLocLength[1];
 			
-			for (int i = carLocLength[0] - 1; i >= 0; i--) {
-				if (!occupationLine[i]) {
+			if (alternativeCountSteps) { // one tile moved, one step
+				int loc = carLocLength[0] - 1;
+				if (loc >= 0 && !occupationLine[loc]) {
 					boolean[] tempLine = line.clone();
 					for (int j = carLocLength[0]; j < carEndPos; j++)
 						tempLine[j] = false;
 					
-					for (int j = i; j < i + carLocLength[1] - 1; j++)
+					for (int j = loc; j < loc + carLocLength[1] - 1; j++)
 						tempLine[j] = true;
 					
-					//System.out.println(this + " " + Library.lineLibrary.getLine(tempLine) + " LEFT " +
-					//		carLocLength[0] + "," + carLocLength[1] + " " + i + "," + carLocLength[1]);
 					reachables.add(Library.lineLibrary.getLine(tempLine));	
-				} else // if car is blocked, stop moving in this direction
-					break; 
-			}
-			
-			if (!reachables.isEmpty())
-				reachableLines.add(reachables);
-			reachables = new ArrayList<Line>();
-			
-			for (int i = carEndPos; i < line.length; i++) {
-				if (!occupationLine[i]) {
+				}
+				
+				if (!reachables.isEmpty())
+					reachableLines.add(reachables);
+				reachables = new ArrayList<Line>();
+				
+				if (carEndPos < Board.lineSize && !occupationLine[carEndPos]) {
 					boolean[] tempLine = line.clone();
 					for (int j = carLocLength[0]; j < carEndPos; j++)
 						tempLine[j] = false;
 					
-					for (int j = i - 1; j > i - carLocLength[1]; j--)
+					for (int j = carEndPos - 1; j > carEndPos - carLocLength[1]; j--)
 						tempLine[j] = true;
 					
-					//System.out.println(this + " " + Library.lineLibrary.getLine(tempLine) + " RIGHT " +
-					//carLocLength[0] + "," + carLocLength[1] + " " + i + "," + carLocLength[1]);
 					reachables.add(Library.lineLibrary.getLine(tempLine));	
-				} else // if car is blocked, stop moving in this direction
-					break;
+				}
+				
+				if (!reachables.isEmpty())
+					reachableLines.add(reachables);
+				
+			} else { // x tiles moves, one step.
+				for (int i = carLocLength[0] - 1; i >= 0; i--) {
+					if (!occupationLine[i]) {
+						boolean[] tempLine = line.clone();
+						for (int j = carLocLength[0]; j < carEndPos; j++)
+							tempLine[j] = false;
+						
+						for (int j = i; j < i + carLocLength[1] - 1; j++)
+							tempLine[j] = true;
+						
+						reachables.add(Library.lineLibrary.getLine(tempLine));	
+					} else // if car is blocked, stop moving in this direction
+						break; 
+				}
+				
+				if (!reachables.isEmpty())
+					reachableLines.add(reachables);
+				reachables = new ArrayList<Line>();
+				
+				for (int i = carEndPos; i < line.length; i++) {
+					if (!occupationLine[i]) {
+						boolean[] tempLine = line.clone();
+						for (int j = carLocLength[0]; j < carEndPos; j++)
+							tempLine[j] = false;
+						
+						for (int j = i - 1; j > i - carLocLength[1]; j--)
+							tempLine[j] = true;
+						
+						reachables.add(Library.lineLibrary.getLine(tempLine));	
+					} else // if car is blocked, stop moving in this direction
+						break;
+				}
+				
+				if (!reachables.isEmpty())
+					reachableLines.add(reachables);
 			}
-			
-			if (!reachables.isEmpty())
-				reachableLines.add(reachables);
 		}
 		
 		// compute indices for checking if move is valid.

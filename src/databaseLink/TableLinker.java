@@ -13,14 +13,14 @@ public abstract class TableLinker {
 		this.link = link;
 	}
 	
-	protected int getInt(String getQuery, String columnName) {
+	protected long getLong(String getQuery, String columnName) {
 		Statement st = link.sqlLink.getStatement();
-		int result = -1;
+		long result = -1;
 		
 		try {
 			ResultSet rs = st.executeQuery(getQuery);
 			if (rs.next())
-				result = rs.getInt(columnName);
+				result = rs.getLong(columnName);
 			rs.close();
 			st.close();
 		} catch (SQLException e1) {

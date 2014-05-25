@@ -46,15 +46,11 @@ public final class Cluster {
 		this.boards = new ArrayList<ClusterBoard>();
 		
 		for (Board board : solutionBoards)
-			addNewSolution(board);
+			add(new ClusterBoard(board, null, 0));
 		
 		this.numSolutions = solutionBoards.size();
 		
 		this.clusterFilling = solutionBoards.get(0).getBoardFilling();
-	}
-	
-	public boolean addNewSolution(Board board) {
-		return add(new ClusterBoard(board, null, 0));
 	}
 	
 	private boolean add(ClusterBoard board) {
@@ -186,6 +182,25 @@ public final class Cluster {
 	
 	public int size() {
 		return boards.size();
+	}
+	
+	public ArrayList<Board> getPath(Board board) {
+		ArrayList<Board> path = new ArrayList<Board>();
+		
+		for (ClusterBoard clusterBoard : boards) {
+			if (clusterBoard.equals(board)) {
+				
+				while (clusterBoard.parentBoard != null) {
+					path.add(clusterBoard.board);
+					clusterBoard = clusterBoard.parentBoard;
+				}
+				path.add(clusterBoard.board);
+				
+				return path;
+			}
+		}
+		
+		return path;
 	}
 	
 	public int[] getRowFillingIds() {

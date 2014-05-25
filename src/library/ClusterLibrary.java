@@ -224,31 +224,7 @@ public final class ClusterLibrary {
 		return columnFillingsThatDoNotFit;
 	}
 	*/
-	
-	
-	public static List<List<Line>> getLinesThatFit(List<List<Line>> allLines, Line otherLine, int depth) {
-		List<List<Line>> allLinesThatFit = new ArrayList<List<Line>>();
-		
-		for (int i = 0; i < Board.lineSize; i++) {
-			List<Line> linesThatFit;
-			
-			if (otherLine.occupationLine[i]) {
-				linesThatFit = new ArrayList<Line>();
-				for (Line line : allLines.get(i))
-					if (!line.occupationLine[depth])
-						linesThatFit.add(line);
-			} else
-				linesThatFit = allLines.get(i);
-			
-			if (linesThatFit.isEmpty())
-				return null;
-			else
-				allLinesThatFit.add(linesThatFit);
-		}
-		
-		return allLinesThatFit;
-	}
-	
+
 	/*
 	public static void generateClusters(Link link) {
 		generateClusters(link, Library.lineLibrary.getGoalLineFillings(), new String[Board.lineSize], 0);
@@ -328,7 +304,7 @@ public final class ClusterLibrary {
 		}
 
 		generateClusters(clusterMap, allColumnsThatFit, rowSelection, new Line[Board.lineSize], 0);
-	}*/
+	}
 	
 	private static void generateClusters(HashMap<String, Cluster> clusterMap, List<List<Line>> allColumnsThatFit,
 			Line[] rowSelection, Line[] columnSelection, int depth) {
@@ -356,7 +332,7 @@ public final class ClusterLibrary {
 				generateClusters(clusterMap, allColumnsThatFit, rowSelection, columnSelection, depth + 1);
 			}
 		}
-	}
+	}*/
 	
 	public static void generateBoards() {
 		Line[] allLines = Library.lineLibrary.getLines().toArray(new Line[Library.lineLibrary.size()]);

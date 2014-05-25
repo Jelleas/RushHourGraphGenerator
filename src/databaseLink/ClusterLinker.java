@@ -79,8 +79,8 @@ public class ClusterLinker extends TableLinker {
 	public ArrayList<Cluster> getRandom(int limit) {
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 		
-		int min = getMin("id");
-		int max = getMax("id");
+		int min = (int)getMin("id");
+		int max = (int)getMax("id");
 		Random rand = new Random();
 		
 		for (int i = 0; i < limit; i++) {
@@ -95,17 +95,17 @@ public class ClusterLinker extends TableLinker {
 		return get("SELECT * FROM `" + tableName + "` WHERE " + whereClause);
 	}
 	
-	public int getMax(String columnName) {
-		return getInt("SELECT MAX(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	public long getMax(String columnName) {
+		return getLong("SELECT MAX(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
 	}
 	
-	public int getMin(String columnName) {
-		return getInt("SELECT MIN(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	public long getMin(String columnName) {
+		return getLong("SELECT MIN(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
 	}
 	
-	/*public long getSum(String columnName) {
-		return 
-	}*/
+	public long getCount(String whereClause) {
+		return getLong("SELECT COUNT(*) AS c FROM `" + tableName + "` WHERE " + whereClause, "c");
+	}
 	
 	public double getAverage(String columnName) {
 		return getDouble("SELECT AVG(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
@@ -123,6 +123,6 @@ public class ClusterLinker extends TableLinker {
 			getQuery += "`columnFilling" + i + "` = " + columnIds[i] + " AND ";
 		
 		getQuery += "`columnFilling" + (Board.lineSize - 1) + "` = " + columnIds[Board.lineSize - 1];
-		return getInt(getQuery, "id") > 0;
+		return getLong(getQuery, "id") > 0;
 	}
 } 
