@@ -365,12 +365,19 @@ public final class Generator extends Applet {
 		}
 	}
 	
+	public static Board getSolution(Board board) {
+		Cluster cluster = new Cluster(board);
+		cluster.solve();
+		return cluster.getSolutions().get(0);
+	}
+	
 	public static void main(String[] args) {
 		Library.init();
 		Library.syncWithDatabase();
-		Cluster cluster = Library.link.clusterLink.getWhere("id = 63132151").get(0);
-		cluster.expand();
-		writeGraphvizGraph("hardest_board_graph.dot", cluster);
+		getSolution(getHardestBoard()).prettyPrint();
+		//Cluster cluster = Library.link.clusterLink.getWhere("id = 63132151").get(0);
+		//cluster.expand();
+		//writeGraphvizGraph("hardest_board_graph.dot", cluster);
 		
 		/*
 		List<String> whereClauses = new ArrayList<String>();
