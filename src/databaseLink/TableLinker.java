@@ -3,6 +3,7 @@ package databaseLink;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public abstract class TableLinker {
 	String tableName;
@@ -47,6 +48,51 @@ public abstract class TableLinker {
 		return result;
 	}
 	
+	public ArrayList<Long> getNumbersWhere(String whereClause, String columnName) {
+		String getQuery = "SELECT " + columnName + " FROM `" + tableName + "` WHERE " + whereClause;
+		ArrayList<Long> results = new ArrayList<Long>();
+		
+		try {
+			Statement st = link.sqlLink.getStatement();
+			ResultSet rs = st.executeQuery(getQuery);
+			
+			while (rs.next())
+				results.add(rs.getLong(columnName));
+			
+			rs.close();
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return results;
+	}
+	
+	public long getMax(String columnName) {
+		return getLong("SELECT MAX(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	}
+	
+	public long getMin(String columnName) {
+		return getLong("SELECT MIN(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	}
+	
+	public long getCountWhere(String whereClause) {
+		return getLong("SELECT COUNT(*) AS countResult FROM `" + tableName + "` WHERE " + whereClause, "countResult");
+	}
+	
+	public double getAverage(String columnName) {
+		return getDouble("SELECT AVG(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	}
+	
+	public long getSum(String columnName) {
+		return getSumWhere("", columnName);
+	}
+	
+	public long getSumWhere(String whereClause, String columnName) {
+		if (!whereClause.isEmpty())
+			whereClause = " WHERE " + whereClause;
+		return getLong("SELECT SUM(`" + columnName + "`) AS " + columnName + " FROM " + tableName + whereClause, columnName);
+	}
 	
 	/**
 	 * Check if id exists in table in database.

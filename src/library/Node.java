@@ -1,7 +1,6 @@
 package library;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import board.Board;
@@ -86,13 +85,13 @@ public class Node {
 	private static void writeClusterToDatabase(Line[] rows, Line[] columns) {
 		Node.numClusters++;
 		if (Node.numClusters % 250000 == 0) {
-			System.out.println("NumClusters: " + Node.numClusters + " NumNewClusters: " + numNewClusters + " Time Taken: " + (System.currentTimeMillis() - Library.clusterLibrary.start));
+			System.out.println("NumClusters: " + Node.numClusters + " NumNewClusters: " + numNewClusters + " Time Taken: " + (System.currentTimeMillis() - ClusterLibrary.start));
 		}
 		
 		Board board = new Board(rows, columns);
 		if (!Library.link.clusterLink.contains(new Cluster(board))) {
 			numNewClusters++;
-			Cluster cluster = new Cluster(Library.clusterLibrary.getAllSolutions(board));
+			Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(board));
 			cluster.expand();
 			Library.link.clusterLink.add(cluster);
 		}

@@ -232,7 +232,7 @@ public final class Generator extends Applet {
 	
 	public static void testPickRandom(Link link, int numClusters) {
 		//List<Cluster> clusters = link.clusterLink.getWhere("size > 90000 LIMIT 5");
-		List<Cluster> clusters = link.clusterLink.getRandom(numClusters);
+		List<Cluster> clusters = link.clusterLink.getRandom(numClusters, true);
 		
 		for (Cluster cluster : clusters) {
 			System.out.println("Size:         " + cluster.size());
@@ -312,7 +312,7 @@ public final class Generator extends Applet {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
 			
 			for (int i = 1; i <= whereClauses.size(); i++) {
-				long count = Library.link.clusterLink.getCount(whereClauses.get(i - 1));
+				long count = Library.link.clusterLink.getCountWhere(whereClauses.get(i - 1));
 				bw.write(i + " " + count + "\n");
 			}
 			
@@ -365,6 +365,108 @@ public final class Generator extends Applet {
 		}
 	}
 	
+	private static void writeClusterSizeExcludingSubClusters(String fileName, String whereClause) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			List<Cluster> clusters = Library.link.clusterLink.getWhere(whereClause);
+
+			for (int i = 0, l = clusters.size(); i < l; i++) {
+				Cluster cluster = clusters.get(i);
+				List<Board> hardestBoards = cluster.getBoardsAtMaxDistance();
+				
+				for (int j = 0; j < hardestBoards.size(); j++) {
+					Board hardestBoard = hardestBoards.get(j);
+					Cluster actualCluster = new Cluster(hardestBoard);
+					actualCluster.expand();
+					bw.write(i + " " + actualCluster.size() + "\n");
+					
+					for (int k = hardestBoards.size() - 1; k >= 0; k--)
+						if (hardestBoards.get(k) != hardestBoard && actualCluster.contains(hardestBoards.get(k)))
+							hardestBoards.remove(k);
+				}
+			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeClusterSizeIncludingSubclusters(String fileName, String whereClause) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			List<Long> maxDistances = Library.link.clusterLink.getNumbersWhere(whereClause, "size");
+			
+			for (int i = 0, l = maxDistances.size(); i < l; i++)
+				bw.write(i + " " + maxDistances.get(i) + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeRandomClusterSizes(String fileName, String whereClause, int limit) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			List<Long> sizes = Library.link.clusterLink.getRandomSizesWhere(whereClause, limit);
+			
+			for (int i = 0, l = sizes.size(); i < l; i++)
+				bw.write(i + " " + sizes.get(i) + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeHistogramDistanceInSizes(String fileName, int nBins) {
+		long maxSize = Library.link.clusterLink.getMax("size");
+		double binSize = maxSize / (double)nBins;
+		long[] bins = new long[nBins];
+		
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			for (int i = 1; i < bins.length; i++) {
+				long sum = Library.link.clusterLink.getSumWhere("size > " + Math.round(binSize * (i - 1)) + " AND size <= " + Math.round(binSize * i), "maxDistance");
+				long count = Library.link.clusterLink.getCountWhere("size > " + Math.round(binSize * (i - 1)) + " AND size <= " + Math.round(binSize * i));
+				bw.write(binSize * i + " " + sum + " " + count + "\n");
+			}
+			
+			long sum = Library.link.clusterLink.getSumWhere("size > " + Math.round(binSize * (bins.length - 1)) + " AND size <= " + maxSize, "maxDistance");
+			long count = Library.link.clusterLink.getCountWhere("size > " + Math.round(binSize * (bins.length - 1)) + " AND size <= " + maxSize);
+			bw.write(maxSize + " " + sum + " " + count);
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static Board getSolution(Board board) {
 		Cluster cluster = new Cluster(board);
 		cluster.solve();
@@ -374,7 +476,13 @@ public final class Generator extends Applet {
 	public static void main(String[] args) {
 		Library.init();
 		Library.syncWithDatabase();
-		getSolution(getHardestBoard()).prettyPrint();
+		//writeClusterSizeIncludingSubclusters("sizes_withMaxDistanceBiggerThan39_includingSubclusters.txt", "maxDistance >= 40");
+		//writeClusterSizeExcludingSubClusters("sizes_withMaxDistanceBiggerThan39_excludingSubclusters.txt", "maxDistance >= 40");
+		//writeRandomClusterSizes("randomSizes_includingSubclusters.txt", "", 1000);
+		writeHistogramDistanceInSizes("histogramDistanceInSizes500.txt", 500); 
+		
+		
+		//getSolution(getHardestBoard()).prettyPrint();
 		//Cluster cluster = Library.link.clusterLink.getWhere("id = 63132151").get(0);
 		//cluster.expand();
 		//writeGraphvizGraph("hardest_board_graph.dot", cluster);

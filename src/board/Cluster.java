@@ -223,6 +223,10 @@ public final class Cluster {
 		return columnFillingIds;
 	}
 	
+	public boolean contains(Board board) {
+		return boardSet.contains(new ClusterBoard(board, null, 0));
+	}
+	
 	public boolean equals(Object o) {
 		if (o instanceof Cluster)
 			return this.getClusterFilling().equals(((Cluster)o).getClusterFilling());

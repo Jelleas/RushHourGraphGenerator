@@ -43,7 +43,7 @@ public class ClusterLinker extends TableLinker {
 		return link.sqlLink.insertQuery(addQuery);
 	}
 	
-	private ArrayList<Cluster> get(String getQuery) {
+	private ArrayList<Cluster> get(String getQuery, boolean shouldExpand) {
 		Statement st = link.sqlLink.getStatement();
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 		
@@ -64,7 +64,10 @@ public class ClusterLinker extends TableLinker {
 				}
 				
 				Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Board(rows, columns)));
-				cluster.expand();
+				
+				if (shouldExpand)
+					cluster.expand();
+					
 				clusters.add(cluster);
 			}
 			rs.close();
@@ -77,38 +80,59 @@ public class ClusterLinker extends TableLinker {
 	}
 	
 	public ArrayList<Cluster> getRandom(int limit) {
+		return getRandom(limit, true);
+	}
+	
+	public ArrayList<Cluster> getRandom(int limit, boolean shouldExpand) {
+		return getRandomWhere("", limit, shouldExpand);
+	}
+	
+	public ArrayList<Cluster> getRandomWhere(String whereClause, int limit, boolean shouldExpand) {
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
+		
+		if (!whereClause.isEmpty())
+			whereClause = " AND " + whereClause;
 		
 		int min = (int)getMin("id");
 		int max = (int)getMax("id");
 		Random rand = new Random();
 		
-		for (int i = 0; i < limit; i++) {
+		while (clusters.size() < limit) {
 			int id = rand.nextInt(max - min + 1) + min;
-			clusters.add(getWhere("id = " + id).get(0));
+			List<Cluster> clustersTemp = getWhere("id = " + id + whereClause, shouldExpand);
+			if (!clustersTemp.isEmpty())
+				clusters.add(clustersTemp.get(0));
 		}
 		
 		return clusters;
 	}
 	
+	public ArrayList<Long> getRandomSizesWhere(String whereClause, int limit) {
+		ArrayList<Long> numbers = new ArrayList<Long>();
+		
+		if (!whereClause.isEmpty())
+			whereClause = " AND " + whereClause;
+		
+		int min = (int)getMin("id");
+		int max = (int)getMax("id");
+		Random rand = new Random();
+		
+		while (numbers.size() < limit) {
+			int id = rand.nextInt(max - min + 1) + min;
+			List<Long> numbersTemp = getNumbersWhere("id = " + id +  whereClause, "size");
+			if (!numbersTemp.isEmpty())
+				numbers.add(numbersTemp.get(0));
+		}
+		
+		return numbers;
+	}
+	
 	public ArrayList<Cluster> getWhere(String whereClause) {
-		return get("SELECT * FROM `" + tableName + "` WHERE " + whereClause);
+		return getWhere(whereClause, true);
 	}
 	
-	public long getMax(String columnName) {
-		return getLong("SELECT MAX(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
-	}
-	
-	public long getMin(String columnName) {
-		return getLong("SELECT MIN(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
-	}
-	
-	public long getCount(String whereClause) {
-		return getLong("SELECT COUNT(*) AS c FROM `" + tableName + "` WHERE " + whereClause, "c");
-	}
-	
-	public double getAverage(String columnName) {
-		return getDouble("SELECT AVG(`" + columnName + "`) AS " + columnName + " FROM `" + tableName + "`", columnName);
+	public ArrayList<Cluster> getWhere(String whereClause, boolean shouldExpand) {
+		return get("SELECT * FROM `" + tableName + "` WHERE " + whereClause, shouldExpand);
 	}
 	
 	public boolean contains(Cluster cluster) {
