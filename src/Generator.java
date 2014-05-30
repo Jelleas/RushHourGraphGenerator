@@ -344,11 +344,11 @@ public final class Generator extends Applet {
 			bw.write("graph MyGraph {\n");
 			for (Board board : boards) {
 				if (board.isSolution())
-					bw.write("Board" + boardToId.get(board) + " [label=\"Board" + boardToId.get(board) + "\", style=\"filled\", color=\"black\", fillcolor=\"green\"]");
+					bw.write("Board" + boardToId.get(board) + " [label=\"Board" + boardToId.get(board) + "\", style=\"filled\", color=\"black\", fillcolor=\"green\"];\n");
 				else if (hardestBoards.contains(board))
-					bw.write("Board" + boardToId.get(board) + " [label=\"Board" + boardToId.get(board) + "\", style=\"filled\", color=\"black\", fillcolor=\"red\"]");
+					bw.write("Board" + boardToId.get(board) + " [label=\"Board" + boardToId.get(board) + "\", style=\"filled\", color=\"black\", fillcolor=\"red\"];\n");
 				else
-					bw.write("Board" + boardToId.get(board) + " [label=\"Board" + boardToId.get(board) + "\", style=\"filled\", color=\"black\", fillcolor=\"white\"]");
+					bw.write("Board" + boardToId.get(board) + " [label=\"Board" + boardToId.get(board) + "\", style=\"filled\", color=\"black\", fillcolor=\"white\"];\n");
 				
 				for (Board reachableBoard : board.getReachableBoards())
 					if (!boardToVisitedReachables.get(board).contains(reachableBoard)) {
@@ -467,10 +467,103 @@ public final class Generator extends Applet {
 		}
 	}
 	
+	private static void searchMinMaxErrorInClusters(String fileName, int hardnessBorder) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			List<Cluster> clusters = Library.link.clusterLink.getWhere("maxDistance >= " + hardnessBorder + " AND size > 800 AND size < 1000", false);
+			clusters.get(0).expand();
+			Cluster easiestCluster = clusters.get(0);
+			double easiestError = easiestCluster.calcSquaredErrorForSizePerDistanceFromAverage() / easiestCluster.size();
+			Cluster hardestCluster = clusters.get(0);
+			double hardestError = hardestCluster.calcSquaredErrorForSizePerDistanceFromAverage() / hardestCluster.size();
+			
+			while (!clusters.isEmpty()) {
+				Cluster cluster = clusters.get(clusters.size() - 1);
+				clusters.remove(clusters.size() - 1);
+				cluster.expand();
+				double error = cluster.calcSquaredErrorForSizePerDistanceFromAverage() / cluster.size();
+				
+				if (error < easiestError) {
+					easiestError = error;
+					easiestCluster = cluster;
+				}
+				if (error > hardestError) {
+					hardestError = error;
+					hardestCluster = cluster;
+				}
+			}
+			
+			System.out.print(easiestCluster.getId() + " " + easiestError + " : " + hardestCluster.getId() + " " + hardestError);
+			
+			easiestCluster = Library.link.clusterLink.getWhere("id = 14444975").get(0);
+			hardestCluster = Library.link.clusterLink.getWhere("id = 22043261").get(0);
+			
+			for (int i = 0, l = easiestCluster.getMaxDistance(); i <= l; i++)
+				bw.write(i + " " + easiestCluster.getBoardsAtDistance(i).size() / (double)easiestCluster.size() + "\n");
+			
+			for (int i = 0, l = hardestCluster.getMaxDistance(); i <= l; i++)
+				bw.write(i + " " + hardestCluster.getBoardsAtDistance(i).size() / (double)hardestCluster.size() + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void searchMinMaxRatioInClusters(String fileName, int hardnessBorder) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			List<Cluster> clusters = Library.link.clusterLink.getWhere("maxDistance >= " + hardnessBorder + " AND size > 800 AND size < 1000", false);
+			clusters.get(0).expand();
+			Cluster easiestCluster = clusters.get(0);
+			double easiestRatio = easiestCluster.calcHardnessRatio(hardnessBorder / 2);
+			Cluster hardestCluster = clusters.get(0);
+			double hardestRatio = hardestCluster.calcHardnessRatio(hardnessBorder / 2);
+			
+			while (!clusters.isEmpty()) {
+				Cluster cluster = clusters.get(clusters.size() - 1);
+				clusters.remove(clusters.size() - 1);
+				cluster.expand();
+				double ratio = cluster.calcHardnessRatio(hardnessBorder / 2);
+				
+				if (ratio < easiestRatio) {
+					easiestRatio = ratio;
+					easiestCluster = cluster;
+				}
+				if (ratio > hardestRatio) {
+					hardestRatio = ratio;
+					hardestCluster = cluster;
+				}
+			}
+			
+			System.out.print(easiestCluster.getId() + " " + easiestRatio + " : " + hardestCluster.getId() + " " + hardestRatio);
+			
+			for (int i = 0, l = easiestCluster.getMaxDistance(); i <= l; i++)
+				bw.write(i + " " + easiestCluster.getBoardsAtDistance(i).size() / (double)easiestCluster.size() + "\n");
+			
+			for (int i = 0, l = hardestCluster.getMaxDistance(); i <= l; i++)
+				bw.write(i + " " + hardestCluster.getBoardsAtDistance(i).size() / (double)hardestCluster.size() + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static Board getSolution(Board board) {
-		Cluster cluster = new Cluster(board);
-		cluster.solve();
-		return cluster.getSolutions().get(0);
+		return Cluster.getSolution(board);
 	}
 	
 	public static void main(String[] args) {
@@ -479,14 +572,15 @@ public final class Generator extends Applet {
 		//writeClusterSizeIncludingSubclusters("sizes_withMaxDistanceBiggerThan39_includingSubclusters.txt", "maxDistance >= 40");
 		//writeClusterSizeExcludingSubClusters("sizes_withMaxDistanceBiggerThan39_excludingSubclusters.txt", "maxDistance >= 40");
 		//writeRandomClusterSizes("randomSizes_includingSubclusters.txt", "", 1000);
-		writeHistogramDistanceInSizes("histogramDistanceInSizes500.txt", 500); 
+		//writeHistogramDistanceInSizes("histogramDistanceInSizes500.txt", 500); 
+		searchMinMaxErrorInClusters("hardnessDifference_withMaxDistanceBiggerThan30.txt", 30);
 		
 		
-		//getSolution(getHardestBoard()).prettyPrint();
-		//Cluster cluster = Library.link.clusterLink.getWhere("id = 63132151").get(0);
-		//cluster.expand();
-		//writeGraphvizGraph("hardest_board_graph.dot", cluster);
+		//Cluster cluster = Library.link.clusterLink.getWhere("id = 14444975").get(0);
+		//writeGraphvizGraph("low_error_board_graph_" + 14444975 + ".dot", cluster);
 		
+		//Cluster cluster = Library.link.clusterLink.getWhere("id = 15060919").get(0);
+		//writeGraphvizGraph("high_ratio_board_graph_" + 15060919 + ".dot", cluster);
 		/*
 		List<String> whereClauses = new ArrayList<String>();
 		long maxDistance = Library.link.clusterLink.getMax("maxDistance");

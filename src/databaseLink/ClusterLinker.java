@@ -22,7 +22,7 @@ public class ClusterLinker extends TableLinker {
 	
 	public int add(Cluster cluster) {
 		int[] rows = cluster.getRowFillingIds();
-		int[] columns = cluster.getColumnFillingsIds();
+		int[] columns = cluster.getColumnFillingIds();
 		int maxDistance = cluster.getMaxDistance();
 		int size = cluster.size();
 		int numSolutions = cluster.getNumSolutions();
@@ -63,7 +63,7 @@ public class ClusterLinker extends TableLinker {
 					columns[i] = Library.lineLibrary.getLines(columnFillings[i]).get(0);
 				}
 				
-				Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Board(rows, columns)));
+				Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Board(rows, columns)), rs.getInt("id"));
 				
 				if (shouldExpand)
 					cluster.expand();
@@ -135,9 +135,9 @@ public class ClusterLinker extends TableLinker {
 		return get("SELECT * FROM `" + tableName + "` WHERE " + whereClause, shouldExpand);
 	}
 	
-	public boolean contains(Cluster cluster) {
+	public int getId(Cluster cluster) {
 		int[] rowIds = cluster.getRowFillingIds();
-		int[] columnIds = cluster.getColumnFillingsIds();
+		int[] columnIds = cluster.getColumnFillingIds();
 		String getQuery = "SELECT id FROM " + tableName + " WHERE ";
 		
 		for (int i = 0; i < Board.lineSize; i++)
@@ -147,6 +147,11 @@ public class ClusterLinker extends TableLinker {
 			getQuery += "`columnFilling" + i + "` = " + columnIds[i] + " AND ";
 		
 		getQuery += "`columnFilling" + (Board.lineSize - 1) + "` = " + columnIds[Board.lineSize - 1];
-		return getLong(getQuery, "id") > 0;
+		
+		return (int)getLong(getQuery, "id");
+	}
+	
+	public boolean contains(Cluster cluster) {
+		return getId(cluster) > 0;
 	}
 } 

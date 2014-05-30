@@ -140,7 +140,6 @@ public final class ClusterLibrary {
 	static long start;
 	long startFromId;
 	
-	
 	private void generateClusters(Link link) {
 		List<List<Line>> goalLines = Library.lineLibrary.getGoalLinesByLineFilling();
 		

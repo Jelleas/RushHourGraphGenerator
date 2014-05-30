@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import library.Library;
+
 public final class Cluster {
 	final class ClusterBoard {
 		final Board board;
@@ -32,6 +34,7 @@ public final class Cluster {
 		}
 	}
 	
+	private int id; 
 	private String clusterFilling;
 	private HashSet<ClusterBoard> boardSet;
 	private ArrayList<ClusterBoard> boards;
@@ -42,6 +45,10 @@ public final class Cluster {
 	}
 	
 	public Cluster(List<Board> solutionBoards) {
+		this(solutionBoards, -1);
+	}
+	
+	public Cluster(List<Board> solutionBoards, int id) {
 		this.boardSet = new HashSet<ClusterBoard>();
 		this.boards = new ArrayList<ClusterBoard>();
 		
@@ -51,6 +58,8 @@ public final class Cluster {
 		this.numSolutions = solutionBoards.size();
 		
 		this.clusterFilling = solutionBoards.get(0).getBoardFilling();
+		
+		this.id = id;
 	}
 	
 	private boolean add(ClusterBoard board) {
@@ -213,7 +222,7 @@ public final class Cluster {
 		return rowFillingIds;
 	}
 	
-	public int[] getColumnFillingsIds() {
+	public int[] getColumnFillingIds() {
 		int[] columnFillingIds = new int[Board.lineSize];
 		Line[] columns = boards.get(0).board.getColumns();
 		
@@ -221,6 +230,46 @@ public final class Cluster {
 			columnFillingIds[i] = columns[i].getId();
 		
 		return columnFillingIds;
+	}
+	
+	public int getId() {
+		if (id < 0)
+			id = Library.link.clusterLink.getId(this);
+		return id;
+	}
+	
+	public double calcHardnessRatio(int hardnessBorder) {
+		double numberBoardsBelowBorder = 0;
+		for (int distance = 0; distance <= hardnessBorder; distance++)
+			numberBoardsBelowBorder += getBoardsAtDistance(distance).size();
+		
+		double numberBoardsAboveOrOnBorder = 0;
+		for (int distance = hardnessBorder, maxDistance = getMaxDistance(); distance <= maxDistance; distance++)
+			numberBoardsAboveOrOnBorder += getBoardsAtDistance(distance).size();
+		
+		return numberBoardsAboveOrOnBorder / numberBoardsBelowBorder;
+	}
+	
+	public double calcSquaredErrorForSizePerDistanceFromAverage() {
+		int maxDistance = getMaxDistance();
+		
+		double average = 0;
+		for (int distance = 0; distance <= maxDistance; distance++)
+			average += getBoardsAtDistance(distance).size();
+		average /= maxDistance + 1;
+		
+		double squaredError = 0;
+		for (int distance = 0; distance <= maxDistance; distance++)
+			//if (average - getBoardsAtDistance(distance).size() > 0) // TODO remove hack
+			squaredError += Math.pow(average - getBoardsAtDistance(distance).size(), 2);
+		
+		return squaredError;
+	}
+	
+	public static Board getSolution(Board board) {
+		Cluster cluster = new Cluster(board);
+		cluster.solve();
+		return cluster.getSolutions().get(0);
 	}
 	
 	public boolean contains(Board board) {
