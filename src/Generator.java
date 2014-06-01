@@ -467,6 +467,79 @@ public final class Generator extends Applet {
 		}
 	}
 	
+	private static void writeVehiclesOnRowsOverVehiclesOnColumnsRatio(String fileName, int numBoardsPerDistance) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			int maxDistance = (int)Library.link.clusterLink.getMax("maxDistance");
+			for (int i = 0; i <= maxDistance; i++) {
+				List<Cluster> clusters = Library.link.clusterLink.getRandomWhere("`maxDistance` = " + i, numBoardsPerDistance, false);
+				
+				for (Cluster cluster : clusters) {
+					double ratio = cluster.getNumberOfVehiclesOnRows() / (double)cluster.getNumberOfVehiclesOnColumns();
+					if (!Double.isInfinite(ratio))
+						bw.write(i + " " + ratio + " " + cluster.getId() + "\n");
+				}
+			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeNumberOfVehicles(String fileName, int numBoardsPerDistance) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			int maxDistance = (int)Library.link.clusterLink.getMax("maxDistance");
+			for (int i = 1; i <= maxDistance; i++) {
+				List<Cluster> clusters = Library.link.clusterLink.getRandomWhere("`maxDistance` = " + i, numBoardsPerDistance, false);
+				
+				for (Cluster cluster : clusters)
+					bw.write(i + " " + cluster.getNumberOfVehicles() + " " + cluster.getId() + "\n");
+			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeNumberOfCarsOverNumberOfTrucksRatio(String fileName, int numBoardsPerDistance) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			int maxDistance = (int)Library.link.clusterLink.getMax("maxDistance");
+			for (int i = 0; i <= maxDistance; i++) {
+				List<Cluster> clusters = Library.link.clusterLink.getRandomWhere("`maxDistance` = " + i, numBoardsPerDistance, false);
+				
+				for (Cluster cluster : clusters)
+					if (cluster.getNumberOfTrucks() != 0)
+						bw.write(i + " " + (cluster.getNumberOfCars() / (double)cluster.getNumberOfTrucks()) + " " + cluster.getId() + "\n");
+			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private static void searchMinMaxErrorInClusters(String fileName, int hardnessBorder) {
 		try {
 			File file = new File(fileName);
@@ -568,12 +641,18 @@ public final class Generator extends Applet {
 	
 	public static void main(String[] args) {
 		Library.init();
+		//Library.buildDatabase();
 		Library.syncWithDatabase();
+		System.out.println(Library.lineLibrary.getLines().get(22) + " " + Library.lineLibrary.getLines().get(22).getId());
+		
+		//writeNumberOfCarsOverNumberOfTrucksRatio("numberOfCarsOverNumberOfTrucksRatio100.txt", 100);
+		//writeNumberOfVehicles("numberOfCarsOverMaxDistanceRatio100.txt", 100);
+		//writeVehiclesOnRowsOverVehiclesOnColumnsRatio("vehiclesOnRowsOverVehiclesOnColumnsRatio100.txt", 100);
 		//writeClusterSizeIncludingSubclusters("sizes_withMaxDistanceBiggerThan39_includingSubclusters.txt", "maxDistance >= 40");
 		//writeClusterSizeExcludingSubClusters("sizes_withMaxDistanceBiggerThan39_excludingSubclusters.txt", "maxDistance >= 40");
 		//writeRandomClusterSizes("randomSizes_includingSubclusters.txt", "", 1000);
 		//writeHistogramDistanceInSizes("histogramDistanceInSizes500.txt", 500); 
-		searchMinMaxErrorInClusters("hardnessDifference_withMaxDistanceBiggerThan30.txt", 30);
+		//searchMinMaxErrorInClusters("hardnessDifference_withMaxDistanceBiggerThan30.txt", 30);
 		
 		
 		//Cluster cluster = Library.link.clusterLink.getWhere("id = 14444975").get(0);

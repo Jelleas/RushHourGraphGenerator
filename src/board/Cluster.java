@@ -217,7 +217,7 @@ public final class Cluster {
 		Line[] rows = boards.get(0).board.getRows();
 		
 		for (int i = 0; i < Board.lineSize; i++)
-			rowFillingIds[i] = rows[i].getId();
+			rowFillingIds[i] = rows[i].getFillingId();
 		
 		return rowFillingIds;
 	}
@@ -227,7 +227,7 @@ public final class Cluster {
 		Line[] columns = boards.get(0).board.getColumns();
 		
 		for (int i = 0; i < Board.lineSize; i++)
-			columnFillingIds[i] = columns[i].getId();
+			columnFillingIds[i] = columns[i].getFillingId();
 		
 		return columnFillingIds;
 	}
@@ -236,6 +236,26 @@ public final class Cluster {
 		if (id < 0)
 			id = Library.link.clusterLink.getId(this);
 		return id;
+	}
+	
+	public int getNumberOfVehiclesOnColumns() {
+		return boards.get(0).board.getNumberOfVehiclesOnColumns();
+	}
+	
+	public int getNumberOfVehiclesOnRows() {
+		return boards.get(0).board.getNumberOfVehiclesOnRows();
+	}
+	
+	public int getNumberOfVehicles() {
+		return boards.get(0).board.getNumberOfVehicles();
+	}
+	
+	public int getNumberOfCars() {
+		return boards.get(0).board.getNumberOfCars();
+	}
+	
+	public int getNumberOfTrucks() {
+		return boards.get(0).board.getNumberOfTrucks();
 	}
 	
 	public double calcHardnessRatio(int hardnessBorder) {

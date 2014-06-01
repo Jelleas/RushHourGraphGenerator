@@ -28,7 +28,7 @@ public class LineLibrary {
 	protected void syncWithDatabase(Link link) {
 		for (Line line : lines) {
 			line.syncWithDatabase(link);
-			lineFillingIdToLines.put(line.getId(), lineFillingToLines.get(line.getLineFilling()));
+			lineFillingIdToLines.put(line.getFillingId(), lineFillingToLines.get(line.getLineFilling()));
 		}
 	}
 	

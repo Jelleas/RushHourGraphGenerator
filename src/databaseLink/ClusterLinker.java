@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -49,6 +50,7 @@ public class ClusterLinker extends TableLinker {
 		
 		try {
 			ResultSet rs = st.executeQuery(getQuery);
+			
 			while (rs.next()) {
 				int[] rowFillings = new int[] {rs.getInt("rowFilling0"), rs.getInt("rowFilling1"),
 						rs.getInt("rowFilling2"), rs.getInt("rowFilling3"), rs.getInt("rowFilling4"), rs.getInt("rowFilling5")};
@@ -89,19 +91,32 @@ public class ClusterLinker extends TableLinker {
 	
 	public ArrayList<Cluster> getRandomWhere(String whereClause, int limit, boolean shouldExpand) {
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
-		
-		if (!whereClause.isEmpty())
-			whereClause = " AND " + whereClause;
-		
-		int min = (int)getMin("id");
-		int max = (int)getMax("id");
 		Random rand = new Random();
 		
-		while (clusters.size() < limit) {
-			int id = rand.nextInt(max - min + 1) + min;
-			List<Cluster> clustersTemp = getWhere("id = " + id + whereClause, shouldExpand);
-			if (!clustersTemp.isEmpty())
-				clusters.add(clustersTemp.get(0));
+		if (whereClause.isEmpty() || getCountWhere(whereClause) > 100000) {
+			if (whereClause.isEmpty())
+				whereClause = "";
+			else
+				whereClause = " AND " + whereClause;
+			
+			int min = (int)getMin("id");
+			int max = (int)getMax("id");
+			
+			while (clusters.size() < limit) {
+				int id = rand.nextInt(max - min + 1) + min;
+				List<Cluster> clustersTemp = getWhere("id = " + id + whereClause, shouldExpand);
+				if (!clustersTemp.isEmpty())
+					clusters.add(clustersTemp.get(0));
+			}
+		} else {
+			List<Long> ids = getNumbersWhere(whereClause, "id");
+			Collections.shuffle(ids);
+			
+			while (!ids.isEmpty() && clusters.size() < limit) {
+				long id = ids.get(ids.size() - 1);
+				ids.remove(ids.size() - 1);
+				clusters.add(getWhere("id = " + id, shouldExpand).get(0));
+			}
 		}
 		
 		return clusters;

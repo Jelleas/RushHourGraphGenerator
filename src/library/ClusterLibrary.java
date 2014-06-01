@@ -404,6 +404,14 @@ public final class ClusterLibrary {
 		}
 	}
 	
+	public static void generateSubClusters() {
+		long maxId = Library.link.clusterLink.getMax("id");
+		
+		for (long id = 1; id <= maxId; id++) {
+			Cluster cluster = Library.link.clusterLink.getWhere("id = " + id, false).get(0); // TODO
+		}
+	}
+	
 	/*
 	public void generateBoards2() {
 		Line[] allLines = new Line[Library.lineLibrary.size()];

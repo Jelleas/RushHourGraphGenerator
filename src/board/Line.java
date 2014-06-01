@@ -18,6 +18,7 @@ public final class Line {
 	private final ArrayList<int[]> carLocLengths; // per car its location and length.
 	private boolean isGoal, isCarFirst;
 	
+	private int fillingId;
 	private int id;
 	
 	// if true, one tile moved -> one step, else: x tiles moved -> one step
@@ -30,6 +31,7 @@ public final class Line {
 		this.occupationLine = new boolean[line.length];
 		this.carLocLengths = new ArrayList<int[]>();
 		this.isCarFirst = false;
+		this.fillingId = -1;
 		this.id = -1;
 		
 		int numberOfCars = 0;
@@ -78,7 +80,12 @@ public final class Line {
 	}
 	
 	public void syncWithDatabase(Link link) {
-		setId(link.lineFillingLink.getId(this));
+		setFillingId(link.lineFillingLink.getId(this));
+		setId(link.lineLink.getId(this));
+	}
+	
+	public void setFillingId(int id) {
+		this.fillingId = id;
 	}
 	
 	public void setId(int id) {
@@ -100,7 +107,7 @@ public final class Line {
 					for (int j = loc; j < loc + carLocLength[1] - 1; j++)
 						tempLine[j] = true;
 					
-					reachables.add(Library.lineLibrary.getLine(tempLine));	
+					reachables.add(Library.lineLibrary.getLine(tempLine));
 				}
 				
 				if (!reachables.isEmpty())
@@ -175,8 +182,16 @@ public final class Line {
 		}
 	}
 
+	public int getFillingId() {
+		return this.fillingId;
+	}
+	
 	public int getId() {
 		return this.id;
+	}
+	
+	public int getNumberOfVehicles() {
+		return getNumberOfCars() + getNumberOfTrucks();
 	}
 	
 	public int getNumberOfCars() {

@@ -43,6 +43,7 @@ public class LineFillingLinker extends TableLinker {
 			if (rs.next()) {
 				int id = rs.getInt("id");
 				rs.close();
+				st.close();
 				return id;
 			}
 			rs.close();

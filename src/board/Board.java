@@ -111,6 +111,42 @@ public final class Board {
 		return rows;
 	}
 	
+	public int getNumberOfVehiclesOnColumns() {
+		int numColVehicles = 0;
+		for (int i = 0; i < Board.lineSize; i++)
+			numColVehicles += columns[i].getNumberOfVehicles();
+		return numColVehicles;
+	}
+	
+	public int getNumberOfVehiclesOnRows() {
+		int numRowVehicles = 0;
+		for (int i = 0; i < Board.lineSize; i++)
+			numRowVehicles += rows[i].getNumberOfVehicles();
+		return numRowVehicles;
+	}
+	
+	public int getNumberOfVehicles() {
+		return getNumberOfCars() + getNumberOfTrucks();
+	}
+	
+	public int getNumberOfCars() {
+		int numCars = 0;
+		for (int i = 0; i < Board.lineSize; i++) {
+			numCars += rows[i].getNumberOfCars();
+			numCars += columns[i].getNumberOfCars();
+		}
+		return numCars;
+	}
+	
+	public int getNumberOfTrucks() {
+		int numTrucks = 0;
+		for (int i = 0; i < Board.lineSize; i++) {
+			numTrucks += rows[i].getNumberOfTrucks();
+			numTrucks += columns[i].getNumberOfTrucks();
+		}
+		return numTrucks;
+	}
+	
 	public boolean isSolution() {
 		Line row = rows[(Board.lineSize - 1) / 2];
 		return row.occupationLine[Board.lineSize - 1] && row.occupationLine[Board.lineSize - 2]; 
@@ -122,7 +158,7 @@ public final class Board {
 	public void print() {
 		System.out.println("Row/Columns");
 		for (int i = 0; i < Board.lineSize; i++)
-			System.out.println(rows[i].getId() + ": " + rows[i] + "   " + columns[i].getId() + ": " + columns[i]);
+			System.out.println(rows[i].getFillingId() + ": " + rows[i] + "   " + columns[i].getFillingId() + ": " + columns[i]);
 		System.out.println();
 	}
 	
