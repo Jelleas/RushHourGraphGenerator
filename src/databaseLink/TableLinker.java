@@ -9,7 +9,7 @@ public abstract class TableLinker {
 	String tableName;
 	Link link;
 	
-	public TableLinker(String tableName, Link link) {
+	protected TableLinker(String tableName, Link link) {
 		this.tableName = tableName;
 		this.link = link;
 	}

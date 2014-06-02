@@ -11,6 +11,7 @@ import board.Board;
 
 public class LineLibrary {
 	private ArrayList<Line> lines;
+	private HashMap<Integer, Line> idToLine;
 	private HashMap<String, Line> linesMap;
 	private HashMap<String, List<Line>> lineFillingToLines;
 	private HashMap<Integer, List<Line>> lineFillingIdToLines;
@@ -29,6 +30,7 @@ public class LineLibrary {
 		for (Line line : lines) {
 			line.syncWithDatabase(link);
 			lineFillingIdToLines.put(line.getFillingId(), lineFillingToLines.get(line.getLineFilling()));
+			idToLine.put(line.getId(), line);
 		}
 	}
 	
@@ -40,8 +42,12 @@ public class LineLibrary {
 		return lineFillingToLines.get(lineFilling);
 	}
 	
-	public List<Line> getLines(int lineFillingId) {
+	public List<Line> getLinesByLineFillingId(int lineFillingId) {
 		return lineFillingIdToLines.get(lineFillingId);
+	}
+	
+	public Line getLineById(int id) {
+		return idToLine.get(id);
 	}
 	
 	/*
@@ -148,6 +154,7 @@ public class LineLibrary {
 	
 	private void initLines() {
 		lines = new ArrayList<Line>();
+		idToLine = new HashMap<Integer, Line>();
 		linesMap = new HashMap<String, Line>();
 		lineFillingToLines = new HashMap<String, List<Line>>();
 		lineFillingIdToLines = new HashMap<Integer, List<Line>>();

@@ -61,11 +61,15 @@ public class ClusterLinker extends TableLinker {
 				Line[] columns = new Line[rowFillings.length];
 				
 				for (int i = 0; i < rowFillings.length; i++) {
-					rows[i] = Library.lineLibrary.getLines(rowFillings[i]).get(0);
-					columns[i] = Library.lineLibrary.getLines(columnFillings[i]).get(0);
+					rows[i] = Library.lineLibrary.getLinesByLineFillingId(rowFillings[i]).get(0);
+					columns[i] = Library.lineLibrary.getLinesByLineFillingId(columnFillings[i]).get(0);
 				}
 				
-				Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(new Board(rows, columns)), rs.getInt("id"));
+				Cluster cluster;
+				if (rs.getInt("maxDistance") == Cluster.unsolvableDistance)
+					cluster = new Cluster(new Board(rows, columns), rs.getInt("id"));
+				else
+					cluster = new Cluster(ClusterLibrary.getAllSolutions(new Board(rows, columns)), rs.getInt("id"));
 				
 				if (shouldExpand)
 					cluster.expand();

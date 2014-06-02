@@ -34,14 +34,20 @@ public final class Cluster {
 		}
 	}
 	
+	public final static int unsolvableDistance = 127;
+	
 	private int id; 
 	private String clusterFilling;
 	private HashSet<ClusterBoard> boardSet;
 	private ArrayList<ClusterBoard> boards;
-	private int numSolutions;
+	private ArrayList<Board> solutions;
 	
 	public Cluster(Board board) {
-		this(Arrays.asList(new Board[] {board}));
+		this(board, -1);
+	}
+	
+	public Cluster(Board board, int id) {
+		this(Arrays.asList(new Board[] {board}), id);
 	}
 	
 	public Cluster(List<Board> solutionBoards) {
@@ -51,11 +57,10 @@ public final class Cluster {
 	public Cluster(List<Board> solutionBoards, int id) {
 		this.boardSet = new HashSet<ClusterBoard>();
 		this.boards = new ArrayList<ClusterBoard>();
+		this.solutions = new ArrayList<Board>();
 		
 		for (Board board : solutionBoards)
 			add(new ClusterBoard(board, null, 0));
-		
-		this.numSolutions = solutionBoards.size();
 		
 		this.clusterFilling = solutionBoards.get(0).getBoardFilling();
 		
@@ -64,9 +69,11 @@ public final class Cluster {
 	
 	private boolean add(ClusterBoard board) {
 		boolean success = boardSet.add(board);
-		if (success)
+		if (success) {
 			boards.add(board);
-		
+			if (board.board.isSolution())
+				solutions.add(board.board);
+		}
 		return success;
 	}
 	
@@ -111,9 +118,11 @@ public final class Cluster {
 	}
 	
 	public int getMaxDistance() {
+		if (getNumSolutions() == 0)
+			return Cluster.unsolvableDistance;
+		
 		return boards.get(boards.size() - 1).distance;
 	}
-	
 	
 	public int getDistanceOf(Board board) {
 		for (int i = 0; i < boards.size(); i++)
@@ -123,24 +132,11 @@ public final class Cluster {
 	}
 	
 	public ArrayList<Board> getSolutions() {
-		ArrayList<Board> solutions = new ArrayList<Board>();
-		
-		for (ClusterBoard board : boards)
-			if (board.board.isSolution())
-				solutions.add(board.board);
-		
 		return solutions;
 	}
 	
-	public int refreshNumSolutions() {
-		numSolutions = -1;
-		return getNumSolutions();
-	}
-	
 	public int getNumSolutions() {
-		if (numSolutions < 0)
-			numSolutions = getSolutions().size();
-		return numSolutions;
+		return solutions.size();
 	}
 	
 	public ArrayList<Board> getPathToSolution(Board board) {

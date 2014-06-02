@@ -17,7 +17,7 @@ public class LineLinker extends TableLinker {
 	public int add(Line line) {	
 		int id = getId(line);
 		if (id < 0) {
-			int lineFillingId = Library.link.lineFillingLink.getId(line);
+			int lineFillingId = link.lineFillingLink.getId(line);
 			int structure = 0;
 			for (int i = 0; i < Board.lineSize; i++) {
 				structure += line.line[i] ? 1 : 0;
@@ -28,7 +28,6 @@ public class LineLinker extends TableLinker {
 			String addQuery = "INSERT INTO `" + tableName + "`(`lineFilling`, `structure`) VALUES (" +
 				 lineFillingId + ", " + structure + ")";
 
-			System.out.println(addQuery);
 			return link.sqlLink.insertQuery(addQuery);
 		} else
 			return id;
