@@ -3,6 +3,8 @@ package library;
 import java.util.ArrayList;
 import java.util.List;
 
+import databaseLink.Link;
+
 import board.Board;
 import board.Cluster;
 import board.Line;
@@ -15,15 +17,17 @@ public class Node {
 	private List<String> lineFillings;
 	private boolean hasSpawned;
 	private List<Node> children;
+	private Link link;
 	
-	public Node(List<String> lineFillings) {
-		this(lineFillings, null);
+	public Node(Link link, List<String> lineFillings) {
+		this(link, lineFillings, null);
 	}
 	
-	private Node(List<String> lineFillings, String lineFilling) {
+	private Node(Link link, List<String> lineFillings, String lineFilling) {
 		this.lineFilling = lineFilling;
 		this.lineFillings = lineFillings;
 		this.hasSpawned = false;
+		this.link = link;
 		this.children = new ArrayList<Node>();
 	}
 	
@@ -52,7 +56,7 @@ public class Node {
 		
 		if (!hasSpawned) { // If node has not spawned children yet, spawn children.
 			for (String lineFilling : lineFillings)
-				children.add(new Node(lineFillings, lineFilling));
+				children.add(new Node(link, lineFillings, lineFilling));
 			
 			hasSpawned = true;
 		}
@@ -76,24 +80,21 @@ public class Node {
 		
 		children = childrenTemp;
 		
-		if (children.size() > 0)
-			return false;
-		else
-			return true;
+		return children.isEmpty();
 	}
 	
-	private static void writeClusterToDatabase(Line[] rows, Line[] columns) {
+	private void writeClusterToDatabase(Line[] rows, Line[] columns) {
 		Node.numClusters++;
 		if (Node.numClusters % 250000 == 0) {
 			System.out.println("NumClusters: " + Node.numClusters + " NumNewClusters: " + numNewClusters + " Time Taken: " + (System.currentTimeMillis() - ClusterLibrary.start));
 		}
 		
 		Board board = new Board(rows, columns);
-		if (!Library.link.clusterLink.contains(new Cluster(board))) {
+		if (!link.clusterLink.contains(new Cluster(board))) {
 			numNewClusters++;
 			Cluster cluster = new Cluster(ClusterLibrary.getAllSolutions(board));
 			cluster.expand();
-			Library.link.clusterLink.add(cluster);
+			link.clusterLink.add(cluster);
 		}
 	}
 	

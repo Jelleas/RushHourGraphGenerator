@@ -161,6 +161,10 @@ public final class Cluster {
 		return boards;
 	}
 	
+	public Board getFirstBoard() {
+		return boards.get(0).board;
+	}
+	
 	public ArrayList<Board> getBoardsAtMaxDistance() {
 		return getBoardsAtDistance(getMaxDistance());
 	}

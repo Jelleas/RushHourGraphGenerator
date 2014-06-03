@@ -49,15 +49,15 @@ public class BoardLinker extends TableLinker {
 		return boards;
 	}
 	
-	public int add(Board board, Cluster subcluster, int distance) {	
+	public int add(Board board, int subclusterId, int distance) {
 		int id = getId(board);
 		if (id >= 0)
 			return id;
 		
-		int subclusterId = link.subclusterLink.getId(subcluster);
-		if (subclusterId < 0)
-			return subclusterId;
-		
+		return uncheckedAdd(board, subclusterId, distance);
+	}
+	
+	public int uncheckedAdd(Board board, int subclusterId, int distance) {
 		String addQuery = "INSERT INTO `" + tableName + "`(`subcluster`, `row0`, `row1`, `row2`, `row3`, `row4`, `row5`," +
 				" `column0`,  `column1`, `column2`, `column3`, `column4`, `column5`, `distance`) VALUES(" + subclusterId + ", "; 
 		

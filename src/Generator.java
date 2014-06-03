@@ -641,38 +641,8 @@ public final class Generator extends Applet {
 	
 	public static void main(String[] args) {
 		Library.init();
-		//Library.buildDatabase();
 		Library.syncWithDatabase();
-		
-		List<Board> allBoards = ClusterLibrary.getAllBoards(getHardestBoard());
-		List<Cluster> clusters = new ArrayList<Cluster>();
-		for (Board board : allBoards) {
-			boolean shouldCreateNewCluster = true;
-			
-			for (Cluster cluster : clusters) {
-				if (cluster.contains(board)) {
-					shouldCreateNewCluster = false;
-					break;
-				}
-			}
-			
-			if (shouldCreateNewCluster) {
-				Cluster cluster = new Cluster(board);
-				cluster.expand();
-				if (cluster.getNumSolutions() == 0) {
-					clusters.add(cluster);
-					Library.link.subclusterLink.add(cluster);
-					Library.link.boardLink.add(board, cluster, Cluster.unsolvableDistance);
-				} else {
-					List<Board> solutions = cluster.getSolutions();
-					Cluster solvedCluster = new Cluster(solutions);
-					solvedCluster.expand();
-					clusters.add(solvedCluster);
-					Library.link.subclusterLink.add(solvedCluster);
-					Library.link.boardLink.add(solvedCluster.getBoardsAtMaxDistance().get(0), solvedCluster, solvedCluster.getMaxDistance());
-				}
-			}
-		}
+		Library.buildDatabase();
 		
 		//writeNumberOfCarsOverNumberOfTrucksRatio("numberOfCarsOverNumberOfTrucksRatio100.txt", 100);
 		//writeNumberOfVehicles("numberOfCarsOverMaxDistanceRatio100.txt", 100);

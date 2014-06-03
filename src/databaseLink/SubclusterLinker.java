@@ -48,18 +48,22 @@ public class SubclusterLinker extends TableLinker {
 	
 	public int add(Cluster subcluster) {	
 		int id = getId(subcluster);
-		if (id < 0) {
-			int clusterId = link.clusterLink.getId(subcluster);
-			int maxDistance = subcluster.getMaxDistance();
-			int size = subcluster.size();
-			int numSolutions = subcluster.getNumSolutions();
-			
-			String addQuery = "INSERT INTO `" + tableName + "`(`cluster`, `maxDistance`, `size`, `numSolutions`) VALUES (" +
-				 clusterId + ", " + maxDistance + ", " + size + ", " + numSolutions + ")";
-
-			return link.sqlLink.insertQuery(addQuery);
-		} else
+		if (id < 0)
+			return uncheckedAdd(subcluster);
+		else
 			return id;
+	}
+	
+	public int uncheckedAdd(Cluster subcluster) {
+		int clusterId = link.clusterLink.getId(subcluster);
+		int maxDistance = subcluster.getMaxDistance();
+		int size = subcluster.size();
+		int numSolutions = subcluster.getNumSolutions();
+		
+		String addQuery = "INSERT INTO `" + tableName + "`(`cluster`, `maxDistance`, `size`, `numSolutions`) VALUES (" +
+			 clusterId + ", " + maxDistance + ", " + size + ", " + numSolutions + ")";
+
+		return link.sqlLink.insertQuery(addQuery);
 	}
 	
 	public int getId(Cluster subcluster) {
@@ -67,19 +71,16 @@ public class SubclusterLinker extends TableLinker {
 		if (clusterId < 0) // if cluster does not exist, return < 0 number.
 			return clusterId;
 		
-		List<Long> ids = getNumbersWhere("maxDistance = " + subcluster.getMaxDistance() + " AND size = " +
-				subcluster.size() + " AND numSolutions = " + subcluster.getNumSolutions(), "id");
+		List<Long> ids = getNumbersWhere("cluster = " + clusterId + " AND maxDistance = " + subcluster.getMaxDistance() +
+				" AND size = " + subcluster.size() + " AND numSolutions = " + subcluster.getNumSolutions(), "id");
 		
 		if (ids.isEmpty()) // if subcluster does not exist, return < 0 number.
 			return -1;
-		if (ids.size() == 1) // if only one subcluster found return its id.
-			return (int)(long)ids.get(0);
 		
-		for (long id : ids) { // if multiple found, find the correct one and return its id.
-			Board board = link.boardLink.getWhere("subcluster = " + id).get(0);
-			if (subcluster.contains(board)) {
+		for (long id : ids) { // if found matches, find the correct one and return its id.
+			List<Board> boards = link.boardLink.getWhere("subcluster = " + id);
+			if (boards.isEmpty() || subcluster.contains(boards.get(0)))
 				return (int)id;
-			}
 		}
 		
 		return -1;

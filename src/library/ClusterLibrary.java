@@ -132,8 +132,9 @@ public final class ClusterLibrary {
 	public void fillDatabase(Link link) {
 		start = System.currentTimeMillis();
 		startFromId = link.clusterLink.getMax("id");
-		generateClusters(link);
-		System.out.println(Node.numClusters + " " + Node.numNewClusters);
+		//generateClusters(link);
+		generateSubclusters(link);
+		System.out.println(System.currentTimeMillis() - start);
 	}
 	
 	static long numClusters = 0; // TODO remove
@@ -168,7 +169,7 @@ public final class ClusterLibrary {
 		} 
 		else if (depth == Board.lineSize) {
 			//generateClustersColumns(link, lineFillings, lineFillings, allRows, columns, 0);
-			Node node = new Node(lineFillings);
+			Node node = new Node(link, lineFillings);
 			node.kill(allRows, new ArrayList<Line>(Board.lineSize));
 		} 	
 	}
@@ -404,11 +405,62 @@ public final class ClusterLibrary {
 		}
 	}
 	
-	public static void generateSubClusters() {
+	public static void generateSubclusters(Link link) {
 		long maxId = Library.link.clusterLink.getMax("id");
+		long currentId = Library.link.subclusterLink.getMax("cluster");
+		if (currentId > 0)
+			generateSubclusters(link, currentId, true); // if db table already contains entries, repair last entry
 		
-		for (long id = 1; id <= maxId; id++) {
-			Cluster cluster = Library.link.clusterLink.getWhere("id = " + id, false).get(0); // TODO
+		maxId = 10000;
+		
+		for (long id = currentId + 1; id <= maxId; id++) {
+			generateSubclusters(link, id, false); // as guaranteed new entry, do not check if already exists in db table
+		}
+	}
+	
+	private static void generateSubclusters(Link link, long clusterId, boolean shouldCheckAddition) {
+		Cluster cluster = link.clusterLink.getWhere("id = " + clusterId, false).get(0);
+		List<Board> allBoards = ClusterLibrary.getAllBoards(cluster.getFirstBoard());
+		List<Cluster> clusters = new ArrayList<Cluster>();
+		
+		for (Board board : allBoards) {
+			boolean shouldCreateNewCluster = true;
+			
+			for (Cluster subcluster : clusters) {
+				if (subcluster.contains(board)) {
+					shouldCreateNewCluster = false;
+					break;
+				}
+			}
+			
+			if (shouldCreateNewCluster) {
+				Cluster subcluster = new Cluster(board);
+				subcluster.expand();
+				if (subcluster.getNumSolutions() == 0) {
+					clusters.add(subcluster);
+					
+					if (shouldCheckAddition) {
+						int subclusterId = link.subclusterLink.add(subcluster);
+						link.boardLink.add(board, subclusterId, Cluster.unsolvableDistance);
+					} else {
+						int subclusterId = link.subclusterLink.uncheckedAdd(subcluster);
+						link.boardLink.uncheckedAdd(board, subclusterId, Cluster.unsolvableDistance);
+					}
+				} else {
+					List<Board> solutions = subcluster.getSolutions();
+					Cluster solvedCluster = new Cluster(solutions);
+					solvedCluster.expand();
+					clusters.add(solvedCluster);
+					
+					if (shouldCheckAddition) {
+						int solvedClusterId = link.subclusterLink.add(solvedCluster);
+						link.boardLink.add(solvedCluster.getBoardsAtMaxDistance().get(0), solvedClusterId, solvedCluster.getMaxDistance());
+					} else {
+						int solvedClusterId = link.subclusterLink.uncheckedAdd(solvedCluster);
+						link.boardLink.uncheckedAdd(solvedCluster.getBoardsAtMaxDistance().get(0), solvedClusterId, solvedCluster.getMaxDistance());
+					}
+				}
+			}
 		}
 	}
 	

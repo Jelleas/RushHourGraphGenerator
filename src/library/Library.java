@@ -29,10 +29,10 @@ public class Library {
 	}
 	
 	public static void buildDatabase() {
-		for (Line line : lineLibrary.getLines()) {
+		/*for (Line line : lineLibrary.getLines()) {
 			line.setFillingId(link.lineFillingLink.add(line));
 			line.setId(link.lineLink.add(line));
-		}	
+		}*/	
 		
 		clusterLibrary.fillDatabase(link);
 	}
