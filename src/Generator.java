@@ -642,7 +642,41 @@ public final class Generator extends Applet {
 	public static void main(String[] args) {
 		Library.init();
 		Library.syncWithDatabase();
-		Library.buildDatabase();
+		//Library.buildDatabase();
+		
+		long maxId = Library.link.clusterLink.getMax("id");
+		int maxDistance = (int)(long)Library.link.clusterLink.getMax("maxDistance");
+		long[] numBoardsPerDistance = new long[maxDistance + 1];
+		long start = System.currentTimeMillis();
+		
+		for (long id = 1; id <= maxId; id++) {
+			Cluster cluster = Library.link.clusterLink.getWhere("id = " + id).get(0);
+			int[] numBoardsPerDistanceCluster = cluster.getNumBoardsPerDistance();
+			
+			for (int i = 0; i < numBoardsPerDistanceCluster.length; i++)
+				numBoardsPerDistance[i] += numBoardsPerDistanceCluster[i];
+			
+			if (id % 100000 == 0)
+				System.out.println(id + " Time Taken:" + (System.currentTimeMillis() - start));
+		}
+		
+		System.out.println("Time Taken:" + (System.currentTimeMillis() - start));
+		
+		try {
+			File file = new File("numBoardsPerDistance.txt");
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			for (int i = 0; i < numBoardsPerDistance.length; i++)
+				bw.write(i + " " + numBoardsPerDistance[i] + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		//writeNumberOfCarsOverNumberOfTrucksRatio("numberOfCarsOverNumberOfTrucksRatio100.txt", 100);
 		//writeNumberOfVehicles("numberOfCarsOverMaxDistanceRatio100.txt", 100);

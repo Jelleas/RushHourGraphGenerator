@@ -185,6 +185,29 @@ public final class Cluster {
 		return boardsAtDistance;
 	}
 	
+	public ArrayList<ArrayList<Board>> getBoardsPerDistance() {
+		int maxDistance = getMaxDistance();
+		ArrayList<ArrayList<Board>> boardsPerDistance = new ArrayList<ArrayList<Board>>(maxDistance + 1);
+		
+		for (int i = 0; i <= maxDistance; i++)
+			boardsPerDistance.add(new ArrayList<Board>());
+		
+		for (ClusterBoard clusterBoard : boards)
+			boardsPerDistance.get(clusterBoard.distance).add(clusterBoard.board);
+		
+		return boardsPerDistance;
+	}
+	
+	public int[] getNumBoardsPerDistance() {
+		int maxDistance = getMaxDistance();
+		int[] numBoardsPerDistance = new int[maxDistance + 1];
+		
+		for (ClusterBoard clusterBoard : boards)
+			numBoardsPerDistance[clusterBoard.distance]++;
+		
+		return numBoardsPerDistance;
+	}
+	
 	public String getClusterFilling() {
 		return clusterFilling;
 	}
