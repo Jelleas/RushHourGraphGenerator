@@ -503,11 +503,39 @@ public final class Generator extends Applet {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
 			
 			int maxDistance = (int)Library.link.clusterLink.getMax("maxDistance");
-			for (int i = 1; i <= maxDistance; i++) {
+			for (int i = 0; i <= maxDistance; i++) {
 				List<Cluster> clusters = Library.link.clusterLink.getRandomWhere("`maxDistance` = " + i, numBoardsPerDistance, false);
 				
 				for (Cluster cluster : clusters)
 					bw.write(i + " " + cluster.getNumberOfVehicles() + " " + cluster.getId() + "\n");
+			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeAverageDistancePerNumberOfVehicles(String fileName, int numBoardsPerDistance) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			int maxDistance = (int)Library.link.clusterLink.getMax("maxDistance");
+			for (int i = 0; i <= maxDistance; i++) {
+				System.out.println(i);
+				List<Cluster> clusters = Library.link.clusterLink.getRandomWhere("`maxDistance` = " + i, numBoardsPerDistance, false);
+				
+				for (int j = clusters.size() - 1; j >= 0; j--) {
+					Cluster cluster = clusters.get(j);
+					clusters.remove(j);
+					cluster.expand();
+					bw.write(i + " " + cluster.getAverageDistance() + " " + cluster.getNumberOfVehicles() + " " + cluster.getId() + "\n");
+				}
 			}
 			
 			bw.close();
@@ -533,6 +561,42 @@ public final class Generator extends Applet {
 					if (cluster.getNumberOfTrucks() != 0)
 						bw.write(i + " " + (cluster.getNumberOfCars() / (double)cluster.getNumberOfTrucks()) + " " + cluster.getId() + "\n");
 			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeNumBoardsPerDistance(String fileName) {
+		long maxId = Library.link.clusterLink.getMax("id");
+		int maxDistance = (int)(long)Library.link.clusterLink.getMax("maxDistance");
+		long[] numBoardsPerDistance = new long[maxDistance + 1];
+		long start = System.currentTimeMillis();
+		
+		for (long id = 1; id <= maxId; id++) {
+			Cluster cluster = Library.link.clusterLink.getWhere("id = " + id).get(0);
+			int[] numBoardsPerDistanceCluster = cluster.getNumBoardsPerDistance();
+			
+			for (int i = 0; i < numBoardsPerDistanceCluster.length; i++)
+				numBoardsPerDistance[i] += numBoardsPerDistanceCluster[i];
+			
+			if (id % 100000 == 0)
+				System.out.println(id + " Time Taken:" + (System.currentTimeMillis() - start));
+		}
+		
+		System.out.println("Time Taken:" + (System.currentTimeMillis() - start));
+		
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			for (int i = 0; i < numBoardsPerDistance.length; i++)
+				bw.write(i + " " + numBoardsPerDistance[i] + "\n");
 			
 			bw.close();
 		} catch (IOException e) {
@@ -644,40 +708,7 @@ public final class Generator extends Applet {
 		Library.syncWithDatabase();
 		//Library.buildDatabase();
 		
-		long maxId = Library.link.clusterLink.getMax("id");
-		int maxDistance = (int)(long)Library.link.clusterLink.getMax("maxDistance");
-		long[] numBoardsPerDistance = new long[maxDistance + 1];
-		long start = System.currentTimeMillis();
-		
-		for (long id = 1; id <= maxId; id++) {
-			Cluster cluster = Library.link.clusterLink.getWhere("id = " + id).get(0);
-			int[] numBoardsPerDistanceCluster = cluster.getNumBoardsPerDistance();
-			
-			for (int i = 0; i < numBoardsPerDistanceCluster.length; i++)
-				numBoardsPerDistance[i] += numBoardsPerDistanceCluster[i];
-			
-			if (id % 100000 == 0)
-				System.out.println(id + " Time Taken:" + (System.currentTimeMillis() - start));
-		}
-		
-		System.out.println("Time Taken:" + (System.currentTimeMillis() - start));
-		
-		try {
-			File file = new File("numBoardsPerDistance.txt");
-			
-			if (!file.exists())
-				file.createNewFile();
-			
-			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
-			
-			for (int i = 0; i < numBoardsPerDistance.length; i++)
-				bw.write(i + " " + numBoardsPerDistance[i] + "\n");
-			
-			bw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+		writeAverageDistancePerNumberOfVehicles("averageDistancePerNumberOfVehicles.txt", 100);
 		//writeNumberOfCarsOverNumberOfTrucksRatio("numberOfCarsOverNumberOfTrucksRatio100.txt", 100);
 		//writeNumberOfVehicles("numberOfCarsOverMaxDistanceRatio100.txt", 100);
 		//writeVehiclesOnRowsOverVehiclesOnColumnsRatio("vehiclesOnRowsOverVehiclesOnColumnsRatio100.txt", 100);

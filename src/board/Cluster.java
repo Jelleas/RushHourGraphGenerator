@@ -198,6 +198,14 @@ public final class Cluster {
 		return boardsPerDistance;
 	}
 	
+	public double getAverageDistance() {
+		double sumDistance = 0;
+		for (ClusterBoard board : boards)
+			sumDistance += board.distance;
+		
+		return sumDistance / size();
+	}
+	
 	public int[] getNumBoardsPerDistance() {
 		int maxDistance = getMaxDistance();
 		int[] numBoardsPerDistance = new int[maxDistance + 1];
