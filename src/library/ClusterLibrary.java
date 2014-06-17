@@ -411,10 +411,11 @@ public final class ClusterLibrary {
 		if (currentId > 0)
 			generateSubclusters(link, currentId, true); // if db table already contains entries, repair last entry
 		
-		maxId = 10000;
-		
 		for (long id = currentId + 1; id <= maxId; id++) {
 			generateSubclusters(link, id, false); // as guaranteed new entry, do not check if already exists in db table
+			
+			if (id % 10000 == 0)
+				System.out.println(id + " Time taken: " + (System.currentTimeMillis() - start));
 		}
 	}
 	

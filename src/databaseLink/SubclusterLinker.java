@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import library.ClusterLibrary;
 import board.Board;
@@ -64,6 +66,44 @@ public class SubclusterLinker extends TableLinker {
 			 clusterId + ", " + maxDistance + ", " + size + ", " + numSolutions + ")";
 
 		return link.sqlLink.insertQuery(addQuery);
+	}
+	
+	public void createIndex() {
+		String query = "CREATE INDEX maxDistance ON " + tableName + " (maxDistance)";
+		this.link.sqlLink.insertQuery(query);
+	}
+	
+	public ArrayList<Cluster> getRandomWhere(String whereClause, int limit, boolean shouldExpand) {
+		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
+		Random rand = new Random();
+		
+		if (whereClause.isEmpty() || getCountWhere(whereClause) > 100000) {
+			if (whereClause.isEmpty())
+				whereClause = "";
+			else
+				whereClause = " AND " + whereClause;
+			
+			int min = (int)getMin("id");
+			int max = (int)getMax("id");
+			
+			while (clusters.size() < limit) {
+				int id = rand.nextInt(max - min + 1) + min;
+				List<Cluster> clustersTemp = getWhere("id = " + id + whereClause, shouldExpand);
+				if (!clustersTemp.isEmpty())
+					clusters.add(clustersTemp.get(0));
+			}
+		} else {
+			List<Long> ids = getNumbersWhere(whereClause, "id");
+			Collections.shuffle(ids);
+			
+			while (!ids.isEmpty() && clusters.size() < limit) {
+				long id = ids.get(ids.size() - 1);
+				ids.remove(ids.size() - 1);
+				clusters.add(getWhere("id = " + id, shouldExpand).get(0));
+			}
+		}
+		
+		return clusters;
 	}
 	
 	public int getId(Cluster subcluster) {

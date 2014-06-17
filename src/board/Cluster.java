@@ -2,9 +2,11 @@ package board;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import library.Library;
 
@@ -38,7 +40,7 @@ public final class Cluster {
 	
 	private int id; 
 	private String clusterFilling;
-	private HashSet<ClusterBoard> boardSet;
+	private HashMap<Board, ClusterBoard> boardToClusterBoard;
 	private ArrayList<ClusterBoard> boards;
 	private ArrayList<Board> solutions;
 	
@@ -55,7 +57,7 @@ public final class Cluster {
 	}
 	
 	public Cluster(List<Board> solutionBoards, int id) {
-		this.boardSet = new HashSet<ClusterBoard>();
+		this.boardToClusterBoard = new HashMap<Board, ClusterBoard>();
 		this.boards = new ArrayList<ClusterBoard>();
 		this.solutions = new ArrayList<Board>();
 		
@@ -68,8 +70,9 @@ public final class Cluster {
 	}
 	
 	private boolean add(ClusterBoard board) {
-		boolean success = boardSet.add(board);
+		boolean success = !boardToClusterBoard.containsKey(board.board);
 		if (success) {
+			boardToClusterBoard.put(board.board, board);
 			boards.add(board);
 			if (board.board.isSolution())
 				solutions.add(board.board);
@@ -110,6 +113,28 @@ public final class Cluster {
 		}
 	}
 	
+	public void solveTillBoardsFound(Set<Board> boards) {
+		LinkedList<ClusterBoard> boardQueue = new LinkedList<ClusterBoard>(this.boards);
+		int numBoardsFound = 0;
+		
+		while (!boardQueue.isEmpty()) {
+			ClusterBoard board = boardQueue.poll();
+			ArrayList<Board> reachableBoards = board.board.getReachableBoards();
+			
+			for (Board reachableBoard : reachableBoards) {
+				ClusterBoard reachableClusterBoard = new ClusterBoard(reachableBoard, board, board.distance + 1);
+				if (add(reachableClusterBoard)) {
+					if (boards.contains(reachableBoard)) {
+						numBoardsFound++;
+						if (numBoardsFound == boards.size())
+							return;
+					}
+					boardQueue.add(reachableClusterBoard);
+				}
+			}
+		}
+	}
+	
 	public double getAverageBranchFactor() {
 		int nBranches = 0;
 		for (ClusterBoard board : boards)
@@ -125,10 +150,8 @@ public final class Cluster {
 	}
 	
 	public int getDistanceOf(Board board) {
-		for (int i = 0; i < boards.size(); i++)
-			if (boards.get(i).equals(board))
-				return boards.get(i).distance;
-		return -1;
+		ClusterBoard clusterBoard = boardToClusterBoard.get(board);
+		return clusterBoard != null ? clusterBoard.distance : -1;
 	}
 	
 	public ArrayList<Board> getSolutions() {
@@ -324,7 +347,7 @@ public final class Cluster {
 	}
 	
 	public boolean contains(Board board) {
-		return boardSet.contains(new ClusterBoard(board, null, 0));
+		return this.boardToClusterBoard.containsKey(board);
 	}
 	
 	public boolean equals(Object o) {

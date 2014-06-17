@@ -49,9 +49,11 @@ public abstract class TableLinker {
 	}
 	
 	public ArrayList<Long> getNumbersWhere(String whereClause, String columnName) {
-		String getQuery = "SELECT " + columnName + " FROM `" + tableName + "` WHERE " + whereClause;
-		ArrayList<Long> results = new ArrayList<Long>();
+		if (!whereClause.isEmpty())
+			whereClause = "` WHERE " + whereClause;
+		String getQuery = "SELECT " + columnName + " FROM `" + tableName + whereClause;
 		
+		ArrayList<Long> results = new ArrayList<Long>();
 		try {
 			Statement st = link.sqlLink.getStatement();
 			ResultSet rs = st.executeQuery(getQuery);
