@@ -32,8 +32,8 @@ t = x
 x = y
 y = t
 #ax.set_xlim(0, 52)
-ax.set_title("")
-pylab.ylabel("Max distance within cluster")
+ax.set_title("Influence of number of vehicles\n on maximum distance within cluster group.")
+pylab.ylabel("Maximum distance within cluster group")
 pylab.xlabel("Number of vehicles")
 ax.plot(x, y, 'x')
 pylab.savefig(dataFile[:-4])

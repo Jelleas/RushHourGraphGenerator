@@ -4,6 +4,7 @@ import numpy as np
 import scipy as sy
 import random
 import pylab
+from math import log
 from scipy.optimize import curve_fit
 
 """
@@ -20,28 +21,40 @@ data = pylab.loadtxt('distributionMaxDistance.txt')
 x = data[:,0]
 y = data[:,1]
 
+
+for i, yElem in enumerate(y):
+	y[i] = log(yElem, 10)
+
 print "plotting data"
 fig = pylab.figure()
 ax = fig.add_subplot(111)
 
-def func(x, a, b, c):
-  return a * x**b + c
+def func(x, a, b):
+  return a * x + b
 
-p0 = sy.array([3.1,-2.5, 100])
+#p0 = sy.array([3.1,-2.5, 100])
+p0 = sy.array([1,1])
+
 coeffs, matcov = curve_fit(func, x, y, p0)
 print coeffs
 print matcov
-yaj = func(x, coeffs[0], coeffs[1], coeffs[2])
+#yaj = func(x, coeffs[0], coeffs[1], coeffs[2])
+yaj = func(x, coeffs[0], coeffs[1])
 
 for i in range(len(x)):
 	x[i] -= 1
 
+for i, yElem in enumerate(y):
+	y[i] = 10**yElem
+	yaj[i] = 10**yaj[i]
+
 ax.set_xlim(0, 52)
-ax.set_title("Distribution of max distance among clusters")
-pylab.xlabel("Max distance within cluster")
-pylab.ylabel("Number of clusters")
+ax.set_title("Distribution of maximum distance among cluster groups.")
+pylab.xlabel("Maximum distance within cluster group")
+pylab.ylabel("Number of cluster groups")
 ax.plot(x, y, 'x', x, yaj, 'r-')
-pylab.savefig('DistributionMaxDistanceGraph')
+pylab.yscale('log')
+pylab.savefig('distributionMaxDistanceGraph')
 
 """
 sequentialTimes, dataProcessed, dataErr = processData(data)

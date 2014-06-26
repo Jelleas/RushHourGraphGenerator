@@ -151,7 +151,7 @@ public final class Cluster {
 	
 	public int getDistanceOf(Board board) {
 		ClusterBoard clusterBoard = boardToClusterBoard.get(board);
-		return clusterBoard != null ? clusterBoard.distance : -1;
+		return clusterBoard != null ? clusterBoard.distance : 0;
 	}
 	
 	public ArrayList<Board> getSolutions() {

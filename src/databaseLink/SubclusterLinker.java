@@ -17,7 +17,7 @@ public class SubclusterLinker extends TableLinker {
 		super("subcluster", link);
 	}
 	
-	private ArrayList<Cluster> get(String getQuery, boolean shouldExpand) {
+	private ArrayList<Cluster> get(String getQuery, boolean shouldExpand, boolean justOneBoard) {
 		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 		
 		Statement st = link.sqlLink.getStatement();
@@ -29,7 +29,7 @@ public class SubclusterLinker extends TableLinker {
 				Board board = link.boardLink.getWhere("subcluster = " + id).get(0);
 				
 				Cluster cluster;
-				if (rs.getInt("maxDistance") == Cluster.unsolvableDistance)
+				if (justOneBoard || rs.getInt("maxDistance") == Cluster.unsolvableDistance)
 					cluster = new Cluster(board);
 				else
 					cluster = new Cluster(ClusterLibrary.getAllSolutions(board));
@@ -126,7 +126,15 @@ public class SubclusterLinker extends TableLinker {
 		return -1;
 	}
 	
+	public ArrayList<Cluster> getWhere(String whereClause) {
+		return getWhere(whereClause, true);
+	}
+	
 	public ArrayList<Cluster> getWhere(String whereClause, boolean shouldExpand) {
-		return get("SELECT * FROM `" + tableName + "` WHERE " + whereClause, shouldExpand);
+		return getWhere(whereClause, shouldExpand, false);
+	}
+	
+	public ArrayList<Cluster> getWhere(String whereClause, boolean shouldExpand, boolean justOneBoard) {
+		return get("SELECT * FROM `" + tableName + "` WHERE " + whereClause, shouldExpand, justOneBoard);
 	}
 }

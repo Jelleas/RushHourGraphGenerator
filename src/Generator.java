@@ -4,6 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -495,23 +498,26 @@ public final class Generator extends Applet {
 		}
 	}
 	
-	private static void writeNumberOfVehicles(String fileName, int numBoardsPerDistance) {
+	private static void writeNumberOfVehicles(String fileName) {
 		try {
 			File file = new File(fileName);
-			
 			if (!file.exists())
 				file.createNewFile();
 			
+			long start = System.currentTimeMillis();
+			
 			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
 			
-			int maxDistance = (int)Library.link.clusterLink.getMax("maxDistance");
-			for (int i = 0; i <= maxDistance; i++) {
-				List<Cluster> clusters = Library.link.clusterLink.getRandomWhere("`maxDistance` = " + i, numBoardsPerDistance, false);
+			int maxId = (int)Library.link.clusterLink.getMax("id");
+			for (int id = 0; id <= maxId; id++) {
+				if (id % 100000 == 0)
+					System.out.println(id + " Time Taken: " + (System.currentTimeMillis() - start));
 				
-				for (Cluster cluster : clusters)
-					bw.write(i + " " + cluster.getNumberOfVehicles() + " " + cluster.getId() + "\n");
+				Cluster cluster = Library.link.clusterLink.getWhere("id = " + id, false, false).get(0);
+				long maxDistance = Library.link.clusterLink.getNumbersWhere("id  = " + id, "maxDistance").get(0);
+				bw.write(id + " " + maxDistance + " " + cluster.getNumberOfVehicles() + "\n");
 			}
-			
+				
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -701,7 +707,7 @@ public final class Generator extends Applet {
 		}
 	}
 	
-	private static void writeNumSolutionsForBiggestAndOtherSubclusters(String fileName) {
+	private static void writeNumConfigurationsForBiggestAndOtherSubclusters(String fileName) {
 		try {
 			File file = new File(fileName);
 			
@@ -714,7 +720,41 @@ public final class Generator extends Applet {
 			
 			int maxId = (int)Library.link.clusterLink.getMax("id");
 			for (int id = 1; id <= maxId; id++) {
-				List<Long> subclusterNumSolutions = Library.link.subclusterLink.getNumbersWhere("cluster = " + id, "numSolutions");
+				List<Long> subclusterSizes = Library.link.subclusterLink.getNumbersWhere("cluster = " + id, "size");
+				long maxSubclusterSize = Collections.max(subclusterSizes);
+				
+				long sumOtherSubclusterSize = 0;
+				for (long subclusterSize : subclusterSizes)
+					sumOtherSubclusterSize += subclusterSize;
+				sumOtherSubclusterSize -= maxSubclusterSize;
+				
+				bw.write(id + " " + maxSubclusterSize + " " + sumOtherSubclusterSize + "\n");
+				
+				if (id % 100000 == 0)
+					System.out.println(id + " / " + maxId + " Time Taken: " + (System.currentTimeMillis() - start));
+			}
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeNumSolutionsForBiggestAndOtherSolvableSubclusters(String fileName) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			
+			long start = System.currentTimeMillis();
+			
+			int maxId = (int)Library.link.clusterLink.getMax("id");
+			for (int id = 1; id <= maxId; id++) {
+				List<Long> subclusterNumSolutions = Library.link.subclusterLink.getNumbersWhere("cluster = " + id +
+						" AND maxDistance < " + Cluster.unsolvableDistance, "numSolutions");
 				long maxSubclusterNumSolution = Collections.max(subclusterNumSolutions);
 				
 				long sumOtherSubclusterNumSolutions = 0;
@@ -734,7 +774,7 @@ public final class Generator extends Applet {
 		}
 	}
 	
-	public static void writeAverageSolutionsDistance(String fileName, int numClustersPerDistance) {
+	private static void writeAverageSolutionsDistance(String fileName, int numClustersPerDistance) {
 		try {
 			File file = new File(fileName);
 			
@@ -749,8 +789,8 @@ public final class Generator extends Applet {
 				System.out.println("At maxDistance: " + maxDistance + " Time Taken: " + (System.currentTimeMillis() - start));
 				
 				List<Cluster> clusters = Library.link.subclusterLink.getRandomWhere("maxDistance = " + maxDistance, numClustersPerDistance, false);
-				
 				while (!clusters.isEmpty()) {
+					System.out.println("At:" + clusters.size() + " Time Taken: " + (System.currentTimeMillis() - start));
 					Cluster cluster = clusters.get(clusters.size() - 1);
 					clusters.remove(clusters.size() - 1);
 					
@@ -768,6 +808,7 @@ public final class Generator extends Applet {
 					}
 					
 					bw.write(cluster.getId() + " " + maxDistance + " " + distance + " " + allSolutions.size() + " " + cluster.size() + "\n");
+					bw.flush();
 				}
 			}
 			
@@ -822,6 +863,136 @@ public final class Generator extends Applet {
 		}
 	}
 	
+	private static void writeNumberOfSubclustersPerCluster(String fileName) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			long start = System.currentTimeMillis();
+			
+			Map<Integer, Integer> numberOfSubclustersToCount = new HashMap<Integer, Integer>();
+			for (int id = 1, maxId = (int)Library.link.clusterLink.getMax("id"); id <= maxId; id++) {
+				if (id % 100000 == 0)
+					System.out.println(id + "/" + maxId + " Time Taken: " + (System.currentTimeMillis() - start));
+				
+				int numberOfSubclusters = Library.link.subclusterLink.getNumbersWhere("cluster = " + id, "size").size();
+				
+				Integer count = numberOfSubclustersToCount.get(numberOfSubclusters);
+				if (count == null)
+					count = 0;
+				count += 1;
+				numberOfSubclustersToCount.put(numberOfSubclusters, count);
+			}
+			
+			List<Integer> numberOfSubclustersList = new ArrayList<Integer>(numberOfSubclustersToCount.keySet());
+			Collections.sort(numberOfSubclustersList);
+			
+			for (Integer numberOfSubclusters : numberOfSubclustersList)
+				bw.write(numberOfSubclusters + " " + numberOfSubclustersToCount.get(numberOfSubclusters) + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeNumberOfConfigurationsPerCluster(String fileName) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			long start = System.currentTimeMillis();
+			
+			Map<Integer, Integer> numberOfConfigurationsToCount = new HashMap<Integer, Integer>();
+			for (int id = 1, maxId = (int)Library.link.clusterLink.getMax("id"); id <= maxId; id++) {
+				if (id % 100000 == 0)
+					System.out.println(id + "/" + maxId + " Time Taken: " + (System.currentTimeMillis() - start));
+				
+				List<Long> sizes = Library.link.subclusterLink.getNumbersWhere("cluster = " + id, "size");
+				int numberOfConfigurations = 0;
+				for (Long size : sizes)
+					numberOfConfigurations += size;
+				
+				Integer count = numberOfConfigurationsToCount.get(numberOfConfigurations);
+				if (count == null)
+					count = 0;
+				count += 1;
+				numberOfConfigurationsToCount.put(numberOfConfigurations, count);
+			}
+			
+			List<Integer> numberOfConfigurationsList = new ArrayList<Integer>(numberOfConfigurationsToCount.keySet());
+			Collections.sort(numberOfConfigurationsList);
+			
+			for (Integer numberOfConfigurations : numberOfConfigurationsList)
+				bw.write(numberOfConfigurations + " " + numberOfConfigurationsToCount.get(numberOfConfigurations) + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void writeNumberOfConfigurationsPerSubcluster(String fileName) {
+		try {
+			File file = new File(fileName);
+			
+			if (!file.exists())
+				file.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile()));
+			long start = System.currentTimeMillis();
+			
+			Map<Integer, Integer> numberOfConfigurationsToCount = new HashMap<Integer, Integer>();
+			for (int id = 1, maxId = (int)Library.link.subclusterLink.getMax("id"); id <= maxId; id++) {
+				if (id % 100000 == 0)
+					System.out.println(id + "/" + maxId + " Time Taken: " + (System.currentTimeMillis() - start));
+				
+				int numberOfConfigurations = (int)(long)Library.link.subclusterLink.getNumbersWhere("id = " + id, "size").get(0);
+				
+				Integer count = numberOfConfigurationsToCount.get(numberOfConfigurations);
+				if (count == null)
+					count = 0;
+				count += 1;
+				numberOfConfigurationsToCount.put(numberOfConfigurations, count);
+			}
+			
+			List<Integer> numberOfConfigurationsList = new ArrayList<Integer>(numberOfConfigurationsToCount.keySet());
+			Collections.sort(numberOfConfigurationsList);
+			
+			for (Integer numberOfConfigurations : numberOfConfigurationsList)
+				bw.write(numberOfConfigurations + " " + numberOfConfigurationsToCount.get(numberOfConfigurations) + "\n");
+			
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void temp() {
+		long start = System.currentTimeMillis();
+		
+		BigDecimal totalSquaredDistance = new BigDecimal("0");
+		
+		long maxId = Library.link.clusterLink.getMax("id");
+		BigDecimal maxIdBigDecimal = BigDecimal.valueOf(maxId);
+		BigDecimal avgDistance = new BigDecimal("172234727").divide(new BigDecimal("68478733"), 5, RoundingMode.HALF_UP);
+		for (long id = 1; id <= maxId; id++) {
+			if (id % 100000 == 0)
+				System.out.println(id + " Time Taken: " + (System.currentTimeMillis() - start) + " " + totalSquaredDistance);
+			BigDecimal size = BigDecimal.valueOf(Library.link.subclusterLink.getCountWhere("cluster = " + id));
+			BigDecimal distanceSquared = (size.subtract(avgDistance)).pow(2);
+			totalSquaredDistance = totalSquaredDistance.add(distanceSquared.divide(maxIdBigDecimal, 5, RoundingMode.HALF_UP));
+		}
+
+		System.out.println(totalSquaredDistance);
+	}
+	
 	public static Board getSolution(Board board) {
 		return Cluster.getSolution(board);
 	}
@@ -832,14 +1003,17 @@ public final class Generator extends Applet {
 		//Library.buildDatabase();
 		
 		//Library.link.subclusterLink.createIndex();
-		
+		//writeNumConfigurationsForBiggestAndOtherSubclusters("numConfigurationsForBiggestAndOtherSolvableSubclusters.txt");
+		//writeNumberOfConfigurationsPerSubcluster("numberOfConfigurationsPerSubcluster.txt");
+		//writeNumberOfConfigurationsPerCluster("numberOfConfigurationsPerCluster.txt");
+		//writeNumberOfSubclustersPerCluster("numberOfSubclustersPerCluster.txt");
 		//writeRandomSubclusterOnRandomSolution("randomSubclusterOnRandomSolutionSizes.txt");
 		//writeNumSolutionsForBiggestAndOtherSubclusters("numSolutionsForBiggestAndOtherSubclusters2.txt");
-		writeAverageSolutionsDistance("averageSolutionsDistance100.txt", 100);
+		//writeAverageSolutionsDistance("averageSolutionsDistance10_0.txt", 10);
 		
 		//writeAverageDistancePerNumberOfVehicles("averageDistancePerNumberOfVehicles.txt", 100);
 		//writeNumberOfCarsOverNumberOfTrucksRatio("numberOfCarsOverNumberOfTrucksRatio100.txt", 100);
-		//writeNumberOfVehicles("numberOfCarsOverMaxDistanceRatio100.txt", 100);
+		writeNumberOfVehicles("numberOfCarsOverMaxDistanceRatio.txt");
 		//writeVehiclesOnRowsOverVehiclesOnColumnsRatio("vehiclesOnRowsOverVehiclesOnColumnsRatio100.txt", 100);
 		//writeClusterSizeIncludingSubclusters("sizes_withMaxDistanceBiggerThan39_includingSubclusters.txt", "maxDistance >= 40");
 		//writeClusterSizeExcludingSubClusters("sizes_withMaxDistanceBiggerThan39_excludingSubclusters.txt", "maxDistance >= 40");
